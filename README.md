@@ -7,7 +7,7 @@ development.
 
 ### Pipeline overview
 
-The primary goal of this sample is to showcase how you can use a Fondant pipeline and reusable components  for load, chunk and embed text, as well as ingest the text embeddings to a vector database. 
+The primary goal of this sample is to showcase how you can use a Fondant pipeline and reusable components to load, chunk and embed text, as well as ingest the text embeddings to a vector database. 
 Pipeline Steps:
 
 - [Data Loading](https://github.com/ml6team/fondant/tree/main/components/load_from_parquet): The pipeline begins by loading text data from a Parquet file, which serves as the
