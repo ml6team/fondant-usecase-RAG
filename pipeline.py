@@ -1,20 +1,14 @@
 """Pipeline used to create a stable diffusion dataset from a set of given images."""
 import logging
-from pathlib import Path
 from fondant.pipeline import ComponentOp, Pipeline
 
 logger = logging.getLogger(__name__)
-
-def create_directory_if_not_exists(path):
-    p_base_path = Path(path).resolve()
-    p_base_path.mkdir(parents=True, exist_ok=True)
-    return str(p_base_path)
 
 
 pipeline = Pipeline(
     pipeline_name="ingestion-pipeline",  # Add a unique pipeline name to easily track your progress and data
     pipeline_description="Pipeline to prepare and process data for building a RAG solution",
-    base_path=create_directory_if_not_exists("./data-dir"), # The demo pipelines uses a local directory to store the data.
+    base_path="./data-dir", # The demo pipelines uses a local directory to store the data.
 )
 
 load_from_parquet = ComponentOp(
