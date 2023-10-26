@@ -16,7 +16,7 @@ Pipeline Steps:
   step
   is crucial for performant RAG systems.
 - [Text Embedding](https://github.com/ml6team/fondant/tree/main/components/embed_text): We are using a small HuggingFace model for the generation of text embeddings.
-  TextEmebd component easily allows the usage of different models as well.
+  The `embed_text` component easily allows the usage of different models as well.
 - [Write to Weaviate](https://github.com/ml6team/fondant/tree/main/components/index_weaviate): The final step of the pipeline involves writing the embedded text data to
   a Weaviate database.
 
