@@ -1,6 +1,6 @@
 ## 🍫 Building a RAG indexing pipeline with Fondant
 
-This repository demonstrates a Fondant data pipeline that ingest text
+This repository demonstrates a Fondant data pipeline that ingests text
 data into a vector database. The pipeline uses four reusable Fondant components.  
 Additionally, we provide a Docker Compose setup for Weaviate, enabling local testing and
 development.
