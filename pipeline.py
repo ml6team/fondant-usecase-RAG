@@ -15,7 +15,6 @@ load_from_hf_hub = ComponentOp(
     component_dir="components/load_from_hf_hub",
     arguments={
         # Add arguments
-        # https://huggingface.co/datasets/wikitext/resolve/refs%2Fconvert%2Fparquet/wikitext-103-raw-v1/test/0000.parquet
         "dataset_name": "wikitext@~parquet",
         "column_name_mapping": {
             "text": "text_data"
@@ -29,8 +28,7 @@ chunk_text_op = ComponentOp.from_registry(
     arguments={
         "chunk_size": 512,
         "chunk_overlap": 32,
-    },
-    input_partition_rows=10,
+    }
 )
 
 embed_text_op = ComponentOp.from_registry(
