@@ -11,11 +11,12 @@ pipeline = Pipeline(
     base_path="./data-dir", # The demo pipelines uses a local directory to store the data.
 )
 
-load_from_parquet = ComponentOp(
-    component_dir="components/load_from_parquet",
+load_from_hf_hub = ComponentOp(
+    component_dir="components/load_from_hf_hub",
     arguments={
         # Add arguments
-        "dataset_uri": "https://huggingface.co/datasets/wikitext/resolve/refs%2Fconvert%2Fparquet/wikitext-103-raw-v1/test/0000.parquet",
+        # https://huggingface.co/datasets/wikitext/resolve/refs%2Fconvert%2Fparquet/wikitext-103-raw-v1/test/0000.parquet
+        "dataset_name": "wikitext@~parquet",
         "column_name_mapping": {
             "text": "text_data"
         },
@@ -49,7 +50,7 @@ index_weaviate_op = ComponentOp.from_registry(
 )
 
 # Construct your pipeline
-pipeline.add_op(load_from_parquet)
-pipeline.add_op(chunk_text_op, dependencies=load_from_parquet)
+pipeline.add_op(load_from_hf_hub)
+pipeline.add_op(chunk_text_op, dependencies=load_from_hf_hub)
 pipeline.add_op(embed_text_op, dependencies=chunk_text_op)
 pipeline.add_op(index_weaviate_op, dependencies=embed_text_op)
