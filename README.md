@@ -12,7 +12,7 @@ components to load, chunk and embed text, as well as ingest the text embeddings 
 database.
 Pipeline Steps:
 
-- [Data Loading](https://github.com/ml6team/fondant/tree/main/components/load_from_parquet): The
+- [Load from Huggingface Hub](https://github.com/ml6team/fondant/tree/main/components/load_from_hf_hub): The
   pipeline begins by loading text data from a Parquet file, which serves as the
   source for subsequent processing. For the minimal example we are using a dataset from Huggingface.
 - [Text Chunking](https://github.com/ml6team/fondant/tree/main/components/chunk_text): Text data is
