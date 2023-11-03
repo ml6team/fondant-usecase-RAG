@@ -41,9 +41,4 @@ repos:
     hooks:
       - id: mypy
         args: ["--ignore-missing-imports", "src"]
-        additional_dependencies:
-          - types-jsonschema
-          - types-PyYAML
-          - types-requests
-          - types-retry
         pass_filenames: false
