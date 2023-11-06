@@ -50,7 +50,11 @@ or use SSH instead:
 git clone git@github.com:ml6team/fondant-usecase-RAG.git
 ```
 
-Afterwards, you can install all needed requirements:
+Afterwards, you can go into the `/src` folder and install all needed requirements:
+
+```shell
+cd src
+```
 
 ```shell
 pip install -r requirements.txt

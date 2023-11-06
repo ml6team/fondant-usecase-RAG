@@ -6,9 +6,12 @@ logger = logging.getLogger(__name__)
 
 
 pipeline = Pipeline(
-    pipeline_name="ingestion-pipeline",  # Add a unique pipeline name to easily track your progress and data
-    pipeline_description="Pipeline to prepare and process data for building a RAG solution",
-    base_path="./data-dir", # The demo pipelines uses a local directory to store the data.
+    pipeline_name="ingestion-pipeline",  # Add a unique pipeline name to \
+    # easily track your progress and data
+    pipeline_description="Pipeline to prepare and process \
+    data for building a RAG solution",
+    base_path="./data-dir",  # The demo pipelines uses a local \
+    # directory to store the data.
 )
 
 load_from_hf_hub = ComponentOp(
@@ -16,11 +19,9 @@ load_from_hf_hub = ComponentOp(
     arguments={
         # Add arguments
         "dataset_name": "wikitext@~parquet",
-        "column_name_mapping": {
-            "text": "text_data"
-        },
-        "n_rows_to_load": 10
-    }
+        "column_name_mapping": {"text": "text_data"},
+        "n_rows_to_load": 10,
+    },
 )
 
 chunk_text_op = ComponentOp.from_registry(
@@ -28,7 +29,7 @@ chunk_text_op = ComponentOp.from_registry(
     arguments={
         "chunk_size": 512,
         "chunk_overlap": 32,
-    }
+    },
 )
 
 embed_text_op = ComponentOp.from_registry(
