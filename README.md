@@ -12,7 +12,8 @@ components to load, chunk and embed text, as well as ingest the text embeddings 
 database.
 Pipeline Steps:
 
-- [Data Loading](https://github.com/ml6team/fondant/tree/main/components/load_from_parquet): The
+- [Load from Huggingface Hub](https://github.com/ml6team/fondant/tree/main/components/load_from_hf_hub):
+  The
   pipeline begins by loading text data from a Parquet file, which serves as the
   source for subsequent processing. For the minimal example we are using a dataset from Huggingface.
 - [Text Chunking](https://github.com/ml6team/fondant/tree/main/components/chunk_text): Text data is
@@ -27,6 +28,12 @@ Pipeline Steps:
   a Weaviate database.
 
 ### Usage
+
+To use the RAG pipeline, you can either utilize the Fondant cli and follow the steps below or using
+the step-by-step tutorial on creating the pipeline using the [provided Jupyter notebook](src/notebook.ipynb).
+
+> ⚠️ Please note that the notebook is not compatible with Google Colab. You must start Docker
+> containers to run the pipeline since Docker is not supported in Google Colab.
 
 **Prerequisite:**
 
