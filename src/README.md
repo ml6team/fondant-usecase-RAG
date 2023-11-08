@@ -1,16 +1,13 @@
 ## 🍫 Building a RAG indexing pipeline with Fondant
 
-This repository demonstrates a Fondant data pipeline that ingests text
+This example demonstrates a Fondant data pipeline that ingests text
 data into a vector database. The pipeline uses four reusable Fondant components.  
 Additionally, we provide a Docker Compose setup for Weaviate, enabling local testing and
 development.
 
 ### Pipeline overview
 
-The primary goal of this sample is to showcase how you can use a Fondant pipeline and reusable
-components to load, chunk and embed text, as well as ingest the text embeddings to a vector
-database.
-Pipeline Steps:
+There are 4 components in total, these are:
 
 - [Load from Huggingface Hub](https://github.com/ml6team/fondant/tree/main/components/load_from_hf_hub):
   The
@@ -27,76 +24,62 @@ Pipeline Steps:
   final step of the pipeline involves writing the embedded text data to
   a Weaviate database.
 
-### Usage
+## Environment
 
-To use the RAG pipeline, you can either utilize the Fondant cli and follow the steps below or using
-the step-by-step tutorial on creating the pipeline using the [provided Jupyter notebook](src/notebook.ipynb).
+Please check that the following prerequisites are:
+- A python version between 3.8 and 3.10 is installed on your system
+  ```shell
+  python --version
+  ```
+- Docker compose is installed on your system and the docker daemon is running
+  ```shell
+  docker compose version
+  docker info
+  ```
+  
+- Fondant is installed
+  ```shell
+  fondant
+  ```
 
-> ⚠️ Please note that the notebook is not compatible with Google Colab. You must start Docker
-> containers to run the pipeline since Docker is not supported in Google Colab.
+## Implementing the pipeline
 
-**Prerequisite:**
+The pipeline is implemented in [pipeline.py](pipeline.py). Please have a look at the file so you 
+understand what is happening.
 
-Ensure that you have Python installed on your system. This data pipeline requires Python version 3.8
-to 3.10.
-Docker is necessary to run the pipeline and the Weaviate database locally. Ensure that Docker is
-installed and configured on your system.
+For more details on the pipeline creation, you can have a look at the 
+[pipeline.ipynb](pipeline.ipynb) notebook which describes the process step by step.
 
-Follow these steps to get started and running the Fondant pipeline on your local machine.
+## Running the pipeline
 
-1. **Setup your environment:** Clone this repository to your local machine using the following
-   command:
+This pipeline will load, chunk and embed text, as well as ingest the text embeddings to a vector
+database.
 
-```shell
-git clone https://github.com/ml6team/fondant-usecase-RAG
-```
+Fondant provides multiple runners to run our pipeline:
+- A Docker runner for local execution
+- A Vertex AI runner for managed execution on Google Cloud
+- A Kubeflow Pipelines runner for execution anywhere
 
-or use SSH instead:
+Here we will use the local runner, which utilizes Docker compose under the hood.
 
-```shell
-git clone git@github.com:ml6team/fondant-usecase-RAG.git
-```
-
-Afterwards, you can go into the `/src` folder and install all needed requirements:
-
-```shell
-cd src
-```
-
-```shell
-pip install -r requirements.txt
-```
-
-Please confirm that Fondant has been installed correctly on your system by executing the following
-command:
-
-```shell
-fondant --help
-```
-
-2. **Start the vector database**: Navigate to the `weaviate` directory and start the Weaviate
-   instance using Docker Compose:
-
-```shell
-cd weaviate 
-docker compose up
-```
-
-Ensure that the database instance is running by validating access with the following command:
-
-```shell
-curl http://localhost:8080/v1/meta
-```
-
-3. **Run the pipeline:** Please navigate to the root directory of this repository and perform the
-   following:
+The runner will first build the custom component and download the reusable components from the 
+component hub. Afterwards, you will see the components execute one by one.
 
 ```shell
 fondant run local pipeline.py
 ```
 
-The pipeline will be compiled into a `docker-compose.yaml` file and subsequently executed.
+## Exploring the dataset
 
-Fondant provides various runners to execute the pipeline in different environments. If you intend to
-run the pipeline in a production environment, you can utilize, for example,
-the [VertexAI runner](https://fondant.ai/en/latest/pipeline/#vertex-runner).
+You can explore the dataset using the fondant explorer, this enables you to visualize your output 
+dataset at each component step. Use the side panel on the left to browse through the steps and subsets.
+
+```shell
+fondant explore -b data-dir
+```
+
+## Scaling up
+
+If you're happy with your dataset, it's time to scale up. Check 
+[our documentation](https://fondant.ai/en/latest/pipeline/#compiling-and-running-a-pipeline) for 
+more information about the available runners.
