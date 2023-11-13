@@ -98,7 +98,7 @@ for dir in "${components_to_build[@]}"; do
   fi
 
   echo "Freezing Fondant dependency version to ${tags[0]}"
-  #docker build --push "${args[@]}" \
+
   docker build --push "${args[@]}" \
    --build-arg="FONDANT_VERSION=${tags[0]}" \
    --label org.opencontainers.image.source=https://github.com/${namespace}/${repo} \

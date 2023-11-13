@@ -33,4 +33,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build components
-        run: ./scripts/build_components.sh --cache -t $GITHUB_SHA -t dev
+        run: ./scripts/build_components.sh -t $GITHUB_SHA -t dev
