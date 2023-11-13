@@ -1,0 +1,37 @@
+#metadata: to be matched w/ docker image
+name: get_embeddings
+description: Component that embeds text
+image: hakimovich99/li_get_embeddings:dev
+
+consumes:
+  text:
+    fields:
+      original+document+id:
+        type: string
+      chunk:
+        type: string
+      # source:
+      #   type: string
+      node:
+        type: string
+
+produces:
+  text:
+    fields:
+      original+document+id:
+        type: string
+      chunk:
+        type: string
+      # source:
+      #   type: string
+      # embeddings:
+      #   type: array
+      #   items:
+      #     type: float32
+      node:
+        type: string
+
+args:
+  hf_embed_model:
+    description: name of the chosen embedding model
+    type: str

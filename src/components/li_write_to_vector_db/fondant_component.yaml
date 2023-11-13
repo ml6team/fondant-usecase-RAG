@@ -1,0 +1,34 @@
+name: write_to_vector_db
+description: Component that adds nodes to a Weaviate vectorDB
+image: hakimovich99/li_write_to_vector_db:dev
+
+consumes:
+  text:
+    fields:
+      node:
+        type: string
+args:
+  cloud_store:
+    description: set to True if weaviate cloud storage
+    type: bool
+    default: False
+  wcs_username:
+    description: username of cloud cluster account
+    default: None
+    type: str
+  wcs_password:
+    description: password of cloud cluster account
+    default: None
+    type: str
+  wcs_url:
+    description: url of cloud cluster account
+    default: None
+    type: str
+  local_url:
+    description: local host url
+    default: None
+    type: str
+  index_name:
+    description: index of the stored data
+    default: None
+    type: str

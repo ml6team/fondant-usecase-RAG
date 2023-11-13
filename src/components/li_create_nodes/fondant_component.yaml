@@ -1,0 +1,28 @@
+#metadata: to be matched w/ docker image
+name: create_nodes
+description: Create and store LlamaIndex Nodes
+image: hakimovich99/li_create_nodes:dev
+
+consumes:
+  text:
+    fields:
+      data:
+        type: string
+
+produces:
+  text:
+    fields:
+      original+document+id:
+        type: string
+      chunk:
+        type: string
+      node:
+        type: string
+
+args:
+  chunk_size:
+    description: chunks size
+    type: int
+  chunk_overlap:
+    description: chunks overlapping
+    type: int
