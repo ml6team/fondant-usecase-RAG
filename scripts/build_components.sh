@@ -14,7 +14,7 @@ function usage {
   echo "  -co, --component <value>           Specific component to build. Pass the component subdirectory name(s) to build
                                              certain component(s) or 'all' to build all components in the components
                                              directory (default: all)"
-  echo "  -r,  --repo <value>                Set the repo (default: ml6team/fondant)"
+  echo "  -r,  --repo <value>                Set the repo (default: ml6team/fondant-usecase-RAG)"
   echo "  -h,  --help                        Display this help message"
 }
 
@@ -42,7 +42,7 @@ fi
 component="${components:-all}"
 components_dir="${components_dir:-components}"
 namespace="${namespace:-ml6team}"
-repo="${repo:-ml6team/fondant}"
+repo="${repo:-ml6team/fondant-usecase-RAG}"
 
 # Get the component directory
 scripts_dir=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
