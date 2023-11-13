@@ -104,18 +104,6 @@ for dir in "${components_to_build[@]}"; do
    --label org.opencontainers.image.source=https://github.com/${namespace}/${repo} \
    .
 
-  docker pushrm ${full_image_name} | echo "
-  README was not pushed.
-
-  \`docker pushrm\` might not be installed.
-
-  To install, run:
-  \`wget https://github.com/christian-korneck/docker-pushrm/releases/download/v1.9.0/docker-pushrm_linux_amd64 -O /usr/libexec/docker/cli-plugins/docker-pushrm\`
-  \`chmod +x /usr/libexec/docker/cli-plugins/docker-pushrm\`
-  And validate by running:
-  \`docker pushrm --help\`
-  "
-
   popd
 
 done
