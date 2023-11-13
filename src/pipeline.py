@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 pipeline = Pipeline(
-    pipeline_name="ingestion-pipeline",  
+    pipeline_name="ingestion-pipeline",
     pipeline_description="Pipeline to prepare and process \
     data for building a RAG solution",
     base_path="./data-dir",  # The demo pipelines uses a local \
@@ -43,7 +43,7 @@ index_weaviate_op = ComponentOp.from_registry(
     name="index_weaviate",
     arguments={
         "weaviate_url": "http://host.docker.internal:8080",
-        "class_name": "index"
+        "class_name": "index",
     },
 )
 
