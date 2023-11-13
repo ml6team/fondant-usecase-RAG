@@ -99,12 +99,10 @@ for dir in "${components_to_build[@]}"; do
 
   echo "Freezing Fondant dependency version to ${tags[0]}"
   #docker build --push "${args[@]}" \
-  docker build "${args[@]}" \
+  docker build -- push "${args[@]}" \
    --build-arg="FONDANT_VERSION=${tags[0]}" \
    --label org.opencontainers.image.source=https://github.com/${namespace}/${repo} \
    .
-
-   exit
 
   docker pushrm ${full_image_name} | echo "
   README was not pushed.
