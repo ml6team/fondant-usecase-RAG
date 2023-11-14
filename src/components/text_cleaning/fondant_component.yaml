@@ -1,6 +1,6 @@
 name: Text cleaning component
 description: Clean text passages
-image: text-cleaning-component:latest
+image: ghcr.io/ml6team/text_cleaning:dev
 
 consumes:
   text:
