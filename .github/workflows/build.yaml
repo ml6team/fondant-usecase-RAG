@@ -26,5 +26,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install fondant
+        run: |
+          pip install --upgrade pip
+          pip install fondant
+
       - name: Build components
-        run: ./scripts/build_components.sh -t $GITHUB_SHA -t dev
+        #run: ./scripts/build_components.sh -r ghcr.io -n ml6team -t $GITHUB_SHA --label org.opencontainers.image.source="https://github.com/ml6team/fondant-usecase-RAG"
+        run: ./scripts/build_components.sh -r ghcr.io -n ml6team -t $GITHUB_SHA
