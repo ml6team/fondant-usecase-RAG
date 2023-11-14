@@ -1,5 +1,6 @@
 """Pipeline used to create a stable diffusion dataset from a set of given images."""
 import logging
+
 from fondant.pipeline import ComponentOp, Pipeline
 
 logger = logging.getLogger(__name__)
@@ -39,11 +40,20 @@ embed_text_op = ComponentOp.from_registry(
     },
 )
 
-index_weaviate_op = ComponentOp.from_registry(
-    name="index_weaviate",
+# index_weaviate_op = ComponentOp.from_registry(
+#     name="index_weaviate",
+#     arguments={
+#         "weaviate_url": "http://host.docker.internal:8080",
+#         "class_name": "index"
+#     },
+# )
+
+#from fondant to llama_index --> create and fill a vector store with Nodes
+index_weaviate_op = ComponentOp(
+    component_dir="components/fondant_llama_write_to_vector_db",
     arguments={
-        "weaviate_url": "http://host.docker.internal:8080",
-        "class_name": "index"
+        "local_url": "http://host.docker.internal:8080",
+        "index_name": "Llama_Paper"
     },
 )
 

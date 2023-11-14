@@ -7,7 +7,6 @@ from tqdm import tqdm
 
 dask.config.set({"dataframe.convert-string": False})
 
-
 class GenerateEmbeddings(PandasTransformComponent):
     def __init__(self, *_, hf_embed_model: str) -> None:
         """

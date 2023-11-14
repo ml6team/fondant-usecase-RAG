@@ -1,3 +1,4 @@
 llama-index
 transformers
 torch
+fondant[docker]==0.6.2
