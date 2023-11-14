@@ -32,5 +32,4 @@ jobs:
           pip install fondant[docker]
 
       - name: Build components
-        #run: ./scripts/build_components.sh -r ghcr.io -n ml6team -t $GITHUB_SHA --label org.opencontainers.image.source="https://github.com/ml6team/fondant-usecase-RAG"
-        run: ./scripts/build_components.sh -r ghcr.io -n ml6team -t $GITHUB_SHA
+        run: ./scripts/build_components.sh -r ghcr.io -n ml6team -t $GITHUB_SHA --label org.opencontainers.image.source="https://github.com/ml6team/fondant-usecase-RAG"
