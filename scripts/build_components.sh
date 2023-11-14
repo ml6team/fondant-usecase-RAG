@@ -6,7 +6,6 @@ function usage {
   echo "Options:"
   echo "  -t,  --tag <value>                 Tag to add to image, repeatable
                                              The first tag is set in the component specifications"
-  echo "  -c,  --cache <value>               Use registry caching when building the components (default:false)"
   echo "  -d,  --components-dir <value>      Directory containing components to build as subdirectories.
                                              The path should be relative to the root directory (default:components)"
   echo "  -r,  --registry <value>            The docker registry prefix to use (default: null for DockerHub)"
@@ -15,6 +14,7 @@ function usage {
                                              certain component(s) or 'all' to build all components in the components
                                              directory (default: all)"
   echo "  -r,  --repo <value>                Set the repo (default: ml6team/fondant-usecase-RAG)"
+  echo "  -l,  --label <value>               Set a container label (e.g. org.opencontainers.image.source=https://github.com/ml6team/fondant-usecase-RAG)"
   echo "  -h,  --help                        Display this help message"
 }
 
@@ -26,8 +26,8 @@ while [[ "$#" -gt 0 ]]; do case $1 in
   -r |--repo) repo="$2"; shift;;
   -t |--tag) tags+=("$2"); shift;;
   -co|--component) components+=("$2"); shift;;
-  -c |--cache) caching=true;;
   -h |--help) usage; exit;;
+  -l |--label) labels+=("$2"); shift;;
   *) echo "Unknown parameter passed: $1"; exit 1;;
 esac; shift; done
 
@@ -72,35 +72,24 @@ for dir in "${components_to_build[@]}"; do
   full_image_names=()
   echo "Tagging image with following tags:"
   for tag in "${tags[@]}"; do
-    full_image_name=ghcr.io/${namespace}/${BASENAME}:${tag}
+    full_image_name=${registry}/${namespace}/${BASENAME}:${tag}
     echo "$full_image_name"
     full_image_names+=("$full_image_name")
   done
 
-  echo "Updating the image version in the fondant_component.yaml with:"
-  echo "${full_image_names[0]}"
-  sed -i -e "s|^image: .*|image: ${full_image_names[0]}|" fondant_component.yaml
-
   args=()
+
+  exit
 
   # Add argument for each tag
   for tag in "${full_image_names[@]}" ; do
     args+=(-t "$tag")
   done
 
-  # Add cache arguments if caching is enabled
-  if [ "$caching" = true ] ; then
-
-    cache_name=ghcr.io/${namespace}/${BASENAME}:build-cache
-    echo "Caching from/to ${cache_name}"
-    args+=(--cache-to "type=registry,ref=${cache_name}")
-    args+=(--cache-from "type=registry,ref=${cache_name}")
-  fi
-
   echo "Freezing Fondant dependency version to ${tags[0]}"
 
+  # TODO: fondant build label?
   docker build --push "${args[@]}" \
-   --build-arg="FONDANT_VERSION=${tags[0]}" \
    --label org.opencontainers.image.source=https://github.com/${namespace}/${repo} \
    .
 
