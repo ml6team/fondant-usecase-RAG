@@ -58,7 +58,6 @@ for dir in "${components_to_build[@]}"; do
 
   full_image_name=${registry}/${namespace}/${BASENAME}:${tag}
   echo "Tagging image as $full_image_name"
-  fondant build $dir -t $full_image_name --nocache "${labels[@]/#/--label }"
-
+  fondant build $dir -t $full_image_name --nocache ${labels[@]/#/--label }
   popd
 done
