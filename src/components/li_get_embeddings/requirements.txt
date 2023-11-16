@@ -1,4 +1,4 @@
-llama-index
+llama-index==0.8.68
 transformers
 torch
 fondant[docker]==0.6.2

@@ -26,7 +26,7 @@ load_from_hf_hub = ComponentOp(
     component_dir="components/load_from_hf_hub",
     arguments={
         # Add arguments
-        "dataset_name": "wikitext@~parquet",
+        "dataset_name": "BeIR/webis-touche2020@~parquet",
         "column_name_mapping": {"text": "text_data"},
         "n_rows_to_load": 10,
     },

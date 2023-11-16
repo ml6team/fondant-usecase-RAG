@@ -1,2 +1,2 @@
-llama-index
+llama-index==0.8.68
 fondant[docker]==0.6.2
