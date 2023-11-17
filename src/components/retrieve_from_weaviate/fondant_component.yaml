@@ -1,0 +1,40 @@
+#metadata: to be matched w/ docker image
+name: retrieve_from_weaviate
+description: Component that retrieves chunks from a weaviate vectorDB
+image: hakimovich99/retrieve_from_weaviate:dev #TODO: change it to fndnt once implemented
+
+consumes:
+  text: #TODO: fill in here
+    fields:
+      question:
+        type: string
+
+produces:
+  text: #TODO: fill in here
+    fields:
+      question:
+        type: string
+      retrieved_chunks:
+        type: array
+        items:
+          type: string
+
+args:
+  weaviate_url:
+    description: The URL of the weaviate instance.
+    type: str
+    default: http://localhost:8080
+  class_name:
+    description:
+      The name of the weaviate class that will be created and used to store the embeddings.
+      Should follow the weaviate naming conventions.
+    type: str
+  text_property_name:
+    description: Name set for the text stored in the vectorDB
+    type: str
+  hf_embed_model:
+    description: Embedding model used to store the vectors in the vectorDB
+    type: str
+  top_k:
+    description: Number of chunks to retrieve
+    type: int

@@ -3,10 +3,10 @@ description: Component that loads a dataset from huggingface hub
 image: hakimovich99/load_from_csv:dev #TODO: change it to fndnt once implemented
 
 produces:
-  dummy_variable: #TODO: fill in here
+  text: #TODO: fill in here
     fields:
-      data:
-        type: binary
+      question:
+        type: string
 
 args:
   dataset_uri:
