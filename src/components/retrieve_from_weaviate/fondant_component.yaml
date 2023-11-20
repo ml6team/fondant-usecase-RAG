@@ -1,7 +1,7 @@
 #metadata: to be matched w/ docker image
 name: retrieve_from_weaviate
 description: Component that retrieves chunks from a weaviate vectorDB
-image: hakimovich99/retrieve_from_weaviate:dev #TODO: change it to fndnt once implemented
+image: ghcr.io/ml6team/retrieve_from_weaviate:dev
 
 consumes:
   text: #TODO: fill in here
