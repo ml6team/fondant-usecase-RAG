@@ -1,1 +1,0 @@
-fondant[docker]==0.6.2
