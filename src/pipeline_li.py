@@ -33,10 +33,8 @@ load_from_hf_hub = ComponentOp(
             },
         # "n_rows_to_load": 10,
     },
-)
-
-text_cleaning = ComponentOp(
-    component_dir="components/text_cleaning"
+    number_of_accelerators=1,
+    accelerator_name="GPU",
 )
 
 get_llama_index_nodes = ComponentOp(
@@ -45,13 +43,17 @@ get_llama_index_nodes = ComponentOp(
         "chunk_size": 512,
         "chunk_overlap": 50
     },
-    cache=False
+    number_of_accelerators=1,
+    accelerator_name="GPU",
+    cache=True
 )
 
 embed_text_op = ComponentOp(
     component_dir="components/li_get_embeddings",
     arguments={"hf_embed_model": "woody72/multilingual-e5-base"},
-    # number_of_gpus=1,
+    number_of_accelerators=1,
+    accelerator_name="GPU",
+    cache=True
 )
 
 index_weaviate_op = ComponentOp(
