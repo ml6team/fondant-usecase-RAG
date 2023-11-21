@@ -7,6 +7,8 @@ produces:
     fields:
       data:
         type: string
+      source:
+        type: string
 
 args:
   dataset_name:
@@ -17,7 +19,8 @@ args:
     type: dict
     default: {}
   image_column_names:
-    description: Optional argument, a list containing the original image column names in case the 
+    description:
+      Optional argument, a list containing the original image column names in case the
       dataset on the hub contains them. Used to format the image from HF hub format to a byte string.
     type: list
     default: []

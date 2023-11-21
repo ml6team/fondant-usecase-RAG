@@ -26,9 +26,12 @@ load_from_hf_hub = ComponentOp(
     component_dir="components/load_from_hf_hub",
     arguments={
         # Add arguments
-        "dataset_name": "BeIR/webis-touche2020@~parquet",
-        "column_name_mapping": {"text": "text_data"},
-        "n_rows_to_load": 10,
+        "dataset_name": "maastrichtlawtech/bsard",
+        "column_name_mapping": {
+            "article": "text_data",
+            "reference": "text_source"
+            },
+        # "n_rows_to_load": 10,
     },
 )
 
@@ -47,7 +50,7 @@ get_llama_index_nodes = ComponentOp(
 
 embed_text_op = ComponentOp(
     component_dir="components/li_get_embeddings",
-    arguments={"hf_embed_model": "BAAI/bge-small-en"},
+    arguments={"hf_embed_model": "woody72/multilingual-e5-base"},
     # number_of_gpus=1,
 )
 
@@ -55,7 +58,7 @@ index_weaviate_op = ComponentOp(
     component_dir="components/li_write_to_vector_db",
     arguments={
         "local_url": "http://host.docker.internal:8080",
-        "index_name": "Llama_Paper"
+        "index_name": "Belgian_Law_French"
     },
 )
 

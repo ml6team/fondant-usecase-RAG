@@ -15,7 +15,7 @@ class CreateNodes(PandasTransformComponent):
     def create_documents(dataframe: pd.DataFrame):
         document = Document(
             text=dataframe[("text","data")],
-            #metadata={"source": dataframe[("text", "source")]} #if any metadata loaded, can be added here
+            metadata={"source": dataframe[("text", "source")]} #if any metadata loaded, can be added here
             )
         return document
 
@@ -28,12 +28,12 @@ class CreateNodes(PandasTransformComponent):
         for node in nodes:
             node_id = node.id_
             chunk = node.text
-            # source = node.metadata['source']
+            source = node.metadata['source']
             node = node.to_json()
             node_list.append((doc_id,
                               node_id,
                               chunk,
-                              # source,
+                              source,
                               node
                               ))
         return node_list
@@ -54,7 +54,7 @@ class CreateNodes(PandasTransformComponent):
             columns=["original+document+id",
                      "node_id",
                      "chunk",
-                    #  "source",
+                     "source",
                      "node"
                      ],
         )

@@ -10,8 +10,8 @@ consumes:
         type: string
       chunk:
         type: string
-      # source:
-      #   type: string
+      source:
+        type: string
       node:
         type: string
 
@@ -22,8 +22,8 @@ produces:
         type: string
       chunk:
         type: string
-      # source:
-      #   type: string
+      source:
+        type: string
       # embeddings:
       #   type: array
       #   items:

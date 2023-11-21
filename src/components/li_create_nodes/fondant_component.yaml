@@ -8,6 +8,8 @@ consumes:
     fields:
       data:
         type: string
+      source:
+        type: string
 
 produces:
   text:
@@ -15,6 +17,8 @@ produces:
       original+document+id:
         type: string
       chunk:
+        type: string
+      source:
         type: string
       node:
         type: string
