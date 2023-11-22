@@ -5,7 +5,7 @@ image: ghcr.io/ml6team/load_from_csv:dev
 produces:
   text: #TODO: fill in here
     fields:
-      question:
+      data:
         type: string
 
 args:
