@@ -1,0 +1,33 @@
+#metadata: to be matched w/ docker image
+name: retriever_eval
+description: Component that evaluates the retriever using RAGAS
+image: ghcr.io/ml6team/retriever_eval:dev
+
+consumes:
+  text: #TODO: fill in here
+    fields:
+      data:
+        type: string
+      retrieved+chunks:
+        type: array
+        items:
+          type: string
+
+produces:
+  text: #TODO: fill in here
+    fields:
+      question:
+        type: string
+      contexts:
+        type: array
+        items:
+          type: string
+      context_precision:
+        type: float32
+      context_relevancy:
+        type: float32
+
+args:
+  openai_key:
+    description: OpenAI key
+    type: str
