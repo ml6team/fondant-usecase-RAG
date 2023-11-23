@@ -15,7 +15,7 @@ class RetrieveChunks(PandasTransformComponent):
         self.class_name = class_name
         self.k = top_k
 
-    def retrieve_chunks(self, vector_query: str):
+    def retrieve_chunks(self, vector_query: list):
         """Get results from weaviate database"""
 
         result = (
