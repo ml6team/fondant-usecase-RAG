@@ -31,3 +31,8 @@ args:
   openai_key:
     description: OpenAI key
     type: str
+  metrics:
+    description: RAGAS metrics to compute
+    type: list
+    items:
+      type: str
