@@ -18,23 +18,23 @@ class RetrieverEval(PandasTransformComponent):
         self.metric_functions = self.extract_metric_functions(metrics=metrics)
         self.set_llm(self.metric_functions)
 
-    #import the metric functions selected
+    # import the metric functions selected
     @staticmethod
     def import_from(module, name):
         module = __import__(module, fromlist=[name])
         return getattr(module, name)
-    
+
     def extract_metric_functions(self, metrics: list):
         functions = []
         for metric in metrics:
             functions.append(self.import_from("ragas.metrics", metric))
         return functions
-    
+
     def set_llm(self, metric_functions: list):
         for metric_function in metric_functions:
             metric_function.llm = self.gpt_wrapper
 
-    #evaluate the retriever
+    # evaluate the retriever
     @staticmethod
     def create_hf_ds(dataframe: pd.DataFrame):
         dataframe.rename(
@@ -43,9 +43,7 @@ class RetrieverEval(PandasTransformComponent):
         return Dataset.from_pandas(dataframe)
 
     def ragas_eval(self, dataset):
-        result = evaluate(
-            dataset=dataset, metrics=self.metric_functions
-        )
+        result = evaluate(dataset=dataset, metrics=self.metric_functions)
         return result
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
