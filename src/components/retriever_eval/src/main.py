@@ -43,6 +43,8 @@ class RetrieverEval(PandasTransformComponent):
             result = self.ragas_eval(dataset=hf_dataset)
             results_df = result.to_pandas()
             results_df.index = results_df.index.astype(str)
+            #rename columns to avoid issues with following component
+            results_df.columns = results_df.columns.str.replace("_", "+")
             # Set multi-index column for the expected subset and field
             results_df.columns = pd.MultiIndex.from_product(
                 [["text"], results_df.columns],
@@ -56,8 +58,8 @@ class RetrieverEval(PandasTransformComponent):
                 {
                     "question": "",
                     "contexts": [" "],
-                    "context_precision": 0.01,
-                    "context_relevancy": 0.01,
+                    "context+precision": 0.01,
+                    "context+relevancy": 0.01,
                 }
             )
             empty.index = empty.index.astype(str)

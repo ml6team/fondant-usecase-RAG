@@ -22,9 +22,9 @@ produces:
         type: array
         items:
           type: string
-      context_precision:
+      context+precision:
         type: float32
-      context_relevancy:
+      context+relevancy:
         type: float32
 
 args:
