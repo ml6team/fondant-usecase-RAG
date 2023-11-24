@@ -9,6 +9,10 @@ from ragas.metrics import context_precision, context_relevancy
 
 class RetrieverEval(PandasTransformComponent):
     def __init__(self, *_, openai_key) -> None:
+        """
+        Args:
+            openai_key: OpenAI key
+        """
         llm = OpenAI(openai_api_key=openai_key)
         gpt_wrapper = LangchainLLM(llm=llm)
         context_precision.llm = gpt_wrapper
