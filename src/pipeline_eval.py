@@ -43,7 +43,7 @@ retrieve_chunks = ComponentOp(
 
 retriever_eval = ComponentOp(
     component_dir="components/retriever_eval",
-    arguments={"openai_key": ""}, #OPENAI key
+    arguments={"openai_key": ""},  # OPENAI key
 )
 
 aggregate_results = ComponentOp(
