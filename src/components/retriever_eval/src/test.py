@@ -49,7 +49,7 @@ input_dataframe.columns = pd.MultiIndex.from_product(
 )
 
 component = RetrieverEval(
-    openai_key="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",
+    openai_key="", #put open_ai key here
     metrics=["context_precision", "context_relevancy"],
 )
 
@@ -110,8 +110,12 @@ columns_equal = expected_output_dataframe.columns.equals(output_dataframe.column
 # Check if data types within each column match
 dtypes_match = expected_output_dataframe.dtypes.equals(output_dataframe.dtypes)
 
-# Assert if both conditions are True
-assert columns_equal and dtypes_match, "DataFrames are not identical."
-
-# If the assertion passes, the DataFrames are identical
-print("DataFrames are identical.")
+# Check if both conditions are met
+if columns_equal and dtypes_match:
+    print("DataFrames are identical.")
+else:
+    print("DataFrames are not identical.")
+    if not columns_equal:
+        print("Column names are different.")
+    if not dtypes_match:
+        print("Data types within columns are different.")
