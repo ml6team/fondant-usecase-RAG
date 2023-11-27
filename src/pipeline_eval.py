@@ -1,4 +1,4 @@
-"""Pipeline used to create a stable diffusion dataset from a set of given images."""
+"""Pipeline used to evaluate a RAG pipeline."""
 import logging
 
 from fondant.pipeline import ComponentOp, Pipeline
@@ -7,9 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 pipeline = Pipeline(
-    pipeline_name="ingestion-pipeline",
-    pipeline_description="Pipeline to prepare and process \
-    data for building a RAG solution",
+    pipeline_name="evaluation-pipeline",
+    pipeline_description="Pipeline to evaluate \
+    a RAG solution",
     base_path="./data-dir",  # The demo pipelines uses a local \
     # directory to store the data.
 )
