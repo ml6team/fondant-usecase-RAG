@@ -49,7 +49,7 @@ input_dataframe.columns = pd.MultiIndex.from_product(
 )
 
 component = RetrieverEval(
-    openai_key="", #put open_ai key here
+    openai_key="",  # put open_ai key here
     metrics=["context_precision", "context_relevancy"],
 )
 
