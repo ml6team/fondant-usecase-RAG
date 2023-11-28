@@ -7,7 +7,7 @@ class AggregateResults(DaskTransformComponent):
         return None
 
     def transform(self, dataframe: dd.DataFrame) -> dd.DataFrame:
-        metrics = list(dataframe["text"].select_dtypes(["float", "int"]).columns)
+        metrics = list(dataframe.select_dtypes(["float", "int"]).columns)
         agg = dataframe[metrics].mean()
         agg_df = agg.to_frame(name="score")
         agg_df["metric"] = agg.index
