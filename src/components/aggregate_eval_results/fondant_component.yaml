@@ -18,11 +18,3 @@ produces:
         type: string
       score:
         type: float32
-
-args:
-  metrics:
-    description: metrics chosen to be aggregated
-    type: list
-    items:
-      type: str
-    default: None
