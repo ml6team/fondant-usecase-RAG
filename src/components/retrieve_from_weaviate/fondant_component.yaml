@@ -18,7 +18,7 @@ produces:
     fields:
       data:
         type: string
-      retrieved_chunks:
+      retrieved+chunks:
         type: array
         items:
           type: string

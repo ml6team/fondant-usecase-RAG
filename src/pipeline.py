@@ -1,5 +1,6 @@
 """Pipeline used to create a stable diffusion dataset from a set of given images."""
 import logging
+
 from fondant.pipeline import ComponentOp, Pipeline
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ load_from_hf_hub = ComponentOp(
         # Add arguments
         "dataset_name": "wikitext@~parquet",
         "column_name_mapping": {"text": "text_data"},
-        "n_rows_to_load": 10,
+        "n_rows_to_load": 1000,
     },
 )
 
