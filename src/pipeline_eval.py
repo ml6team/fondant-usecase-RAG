@@ -43,13 +43,13 @@ retrieve_chunks = ComponentOp(
 
 retriever_eval = ComponentOp(
     component_dir="components/retriever_eval",
-    arguments={"openai_key": ""},  # OPENAI key
+    arguments={
+        "openai_key": "",  # OPENAI key
+        "metrics": ["context_precision", "context_relevancy"],
+    },
 )
 
-aggregate_results = ComponentOp(
-    component_dir="components/aggregate_eval_results",
-    arguments={"metrics": ["context+precision", "context+relevancy"]},
-)
+aggregate_results = ComponentOp(component_dir="components/aggregate_eval_results")
 
 # Construct your pipeline
 pipeline.add_op(load_from_csv)
