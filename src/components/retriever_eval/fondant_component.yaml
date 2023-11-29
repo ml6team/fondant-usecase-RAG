@@ -28,9 +28,16 @@ produces:
         type: float32
 
 args:
-  openai_key:
-    description: OpenAI key
+  module:
+    description: Module from which the LLM is imported. Defaults to langchain.llms
     type: str
+    default: "langchain.llms"
+  llm_name:
+    description: Name of the selected llm
+    type: str
+  llm_kwargs:
+    description: Arguments of the selected llm
+    type: dict
   metrics:
     description: RAGAS metrics to compute
     type: list
