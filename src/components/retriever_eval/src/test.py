@@ -51,7 +51,7 @@ input_dataframe.columns = pd.MultiIndex.from_product(
 component = RetrieverEval(
     module="langchain.llms",
     llm_name="OpenAI",
-    llm_kwargs={"openai_api_key": ''},
+    llm_kwargs={"openai_api_key": ""},
     metrics=["context_precision", "context_relevancy"],
 )
 
