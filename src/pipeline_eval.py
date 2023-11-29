@@ -44,7 +44,8 @@ retrieve_chunks = ComponentOp(
 retriever_eval = ComponentOp(
     component_dir="components/retriever_eval",
     arguments={
-        "openai_key": "",  # OPENAI key
+        "llm_name": "OpenAI",
+        "llm_kwargs": {"openai_api_key": ""},
         "metrics": ["context_precision", "context_relevancy"],
     },
 )
