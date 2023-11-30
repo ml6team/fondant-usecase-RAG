@@ -1,0 +1,25 @@
+[tool.ruff]
+select = ["C4", "COM", "D", "E", "EM", "ERA", "F", "I", "NPY", "PD", "PIE", "PL", "PT", "RET",
+    "RSE", "RUF", "SIM", "TCH", "TID", "UP", "W"]
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in __init__
+    "D205",  # 1 blank line required between summary line and description (autofix not working)
+    "D212",  # Multi-line docstring summary should start at first line (we choose 2nd)
+    "PD901", # Pandas-df-variable-name
+]
+line-length = 100  # Only for comments, as code is handled by black at length 88
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.bandit]
+skips = ["B108", "B307", "B404", "B602"]
+
+[tool.bandit.assert_used]
+skips = ["**/test_*.py", "**/*_test.py"]
