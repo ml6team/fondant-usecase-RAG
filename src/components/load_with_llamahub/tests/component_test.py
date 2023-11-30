@@ -12,7 +12,8 @@ def test_arxiv_reader():
     This test requires a stable internet connection, both to download the loader, and to download
     the papers from Arxiv.
     """
-    spec = yaml.safe_load(open(Path(__file__).with_name("fondant_component.yaml")))
+    with open(Path(__file__).with_name("fondant_component.yaml")) as f:
+        spec = yaml.safe_load(f)
     spec = ComponentSpec(spec)
 
     component = LlamaHubReader(
@@ -21,7 +22,7 @@ def test_arxiv_reader():
         loader_kwargs={},
         load_kwargs={
             "search_query": "jeff dean",
-            "max_results": 5
+            "max_results": 5,
         },
         additional_requirements=["pypdf"],
         n_rows_to_load=None,

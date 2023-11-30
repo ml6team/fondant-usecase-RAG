@@ -31,6 +31,7 @@ class LlamaHubReader(DaskLoadComponent):
             loader_class: The name of the LlamaIndex loader class to use
             loader_kwargs: Keyword arguments to pass when instantiating the loader class
             load_kwargs: Keyword arguments to pass to the `.load()` method of the loader
+            additional_requirements: Additional Python requirements to install
             n_rows_to_load: optional argument that defines the number of rows to load.
                 Useful for testing pipeline runs on a small scale.
             index_column: Column to set index to in the load component, if not specified a default
@@ -49,7 +50,9 @@ class LlamaHubReader(DaskLoadComponent):
     @staticmethod
     def install_additional_requirements(additional_requirements: t.List[str]):
         for requirement in additional_requirements:
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', requirement])
+            subprocess.check_call(  # nosec
+                [sys.executable, "-m", "pip", "install", requirement],
+            )
 
     def get_columns_to_keep(self) -> t.List[str]:
         # Only read required columns
@@ -84,9 +87,9 @@ class LlamaHubReader(DaskLoadComponent):
                 """Function that sets a unique index based on the partition and row number."""
                 dataframe["id"] = 1
                 dataframe["id"] = (
-                        str(partition_info["number"])
-                        + "_"
-                        + (dataframe.id.cumsum()).astype(str)
+                    str(partition_info["number"])
+                    + "_"
+                    + (dataframe.id.cumsum()).astype(str)
                 )
                 dataframe.index = dataframe.pop("id")
                 return dataframe
