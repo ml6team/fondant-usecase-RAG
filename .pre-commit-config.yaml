@@ -17,7 +17,8 @@ repos:
     hooks:
       - id: bandit
         name: bandit
-        args: ["-r", "./src/*"]
+        args: ["-c", "pyproject.toml", "-r", "./src/*"]
+        additional_dependencies: [ ".[toml]" ]
 
   - repo: https://github.com/psf/black
     rev: 23.1.0
