@@ -7,17 +7,24 @@ from ragas.llms import LangchainLLM
 
 class RetrieverEval(PandasTransformComponent):
     def __init__(
-        self, *_, module: str, llm_name: str, llm_kwargs: dict, metrics: list
+        self,
+        *_,
+        module: str,
+        llm_name: str,
+        llm_kwargs: dict,
+        metrics: list,
     ) -> None:
         """
         Args:
             module: Module from which the LLM is imported. Defaults to langchain.llms
             llm_name: Name of the selected llm
             llm_kwargs: Arguments of the selected llm
-            metrics: RAGAS metrics to compute
+            metrics: RAGAS metrics to compute.
         """
         self.llm = self.extract_llm(
-            module=module, model_name=llm_name, model_kwargs=llm_kwargs
+            module=module,
+            model_name=llm_name,
+            model_kwargs=llm_kwargs,
         )
         self.gpt_wrapper = LangchainLLM(llm=self.llm)
         self.metric_functions = self.extract_metric_functions(metrics=metrics)
@@ -46,18 +53,17 @@ class RetrieverEval(PandasTransformComponent):
     # evaluate the retriever
     @staticmethod
     def create_hf_ds(dataframe: pd.DataFrame):
-        dataframe.rename(
-            columns={"data": "question", "retrieved+chunks": "contexts"}, inplace=True
+        dataframe = dataframe.rename(
+            columns={"data": "question", "retrieved+chunks": "contexts"},
         )
         return Dataset.from_pandas(dataframe)
 
     def ragas_eval(self, dataset):
-        result = evaluate(dataset=dataset, metrics=self.metric_functions)
-        return result
+        return evaluate(dataset=dataset, metrics=self.metric_functions)
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         hf_dataset = self.create_hf_ds(
-            dataframe=dataframe["text"][["data", "retrieved+chunks"]]
+            dataframe=dataframe["text"][["data", "retrieved+chunks"]],
         )
         if "id" in hf_dataset.column_names:
             hf_dataset = hf_dataset.remove_columns("id")

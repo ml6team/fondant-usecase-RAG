@@ -43,7 +43,7 @@ def test_transform():
                         sed tellus egestas fermentum.",
                 ],
             ],
-        }
+        },
     )
 
     input_dataframe.columns = pd.MultiIndex.from_product(
@@ -101,7 +101,7 @@ def test_transform():
             ],
             "context+precision": 0.15,
             "context+relevancy": 0.35,
-        }
+        },
     )
 
     expected_output_dataframe.columns = pd.MultiIndex.from_product(
@@ -115,4 +115,5 @@ def test_transform():
     dtypes_match = expected_output_dataframe.dtypes.equals(output_dataframe.dtypes)
 
     # Check if both conditions are met
-    assert columns_equal and dtypes_match
+    assert columns_equal
+    assert dtypes_match
