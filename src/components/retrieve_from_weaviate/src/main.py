@@ -1,14 +1,15 @@
 import pandas as pd
-from fondant.component import PandasTransformComponent
-
 import weaviate
+from fondant.component import PandasTransformComponent
 
 
 class RetrieveChunks(PandasTransformComponent):
     def __init__(self, *_, weaviate_url: str, class_name: str, top_k: int) -> None:
         """
         Args:
-            weaviate_url: An argument passed to the component
+            weaviate_url: An argument passed to the component.
+            class_name: Name of class to query
+            top_k: Amount of context to return.
         """
         # Initialize your component here based on the arguments
         self.client = weaviate.Client(weaviate_url)
@@ -16,8 +17,7 @@ class RetrieveChunks(PandasTransformComponent):
         self.k = top_k
 
     def retrieve_chunks(self, vector_query: str):
-        """Get results from weaviate database"""
-
+        """Get results from weaviate database."""
         result = (
             self.client.query.get(self.class_name, ["passage"])
             .with_near_vector({"vector": vector_query})
@@ -26,9 +26,7 @@ class RetrieveChunks(PandasTransformComponent):
             .do()
         )
         result_dict = result["data"]["Get"][self.class_name]
-        text = [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
-
-        return text
+        return [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         dataframe[("text", "retrieved_chunks")] = dataframe[

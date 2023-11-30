@@ -23,9 +23,9 @@ class CSVReader(DaskLoadComponent):
         """
         Args:
             spec: the component spec
-            dataset_uri: The remote path to the parquet file/folder
-                containing the dataset column_name_mapping: Mapping of
-                the consumed dataset to fondant column names
+            dataset_uri: The remote path to the csv file/folder containing the dataset
+            column_separator: Separator to use when parsing csv
+            column_name_mapping: Mapping of the consumed dataset to fondant column names
             n_rows_to_load: optional argument that defines the
                 number of rows to load. Useful for testing pipeline
                 runs on a small scale.
@@ -128,7 +128,9 @@ class CSVReader(DaskLoadComponent):
 
         logger.debug(f"Columns to keep: {columns}")
         dask_df = dd.read_csv(
-            self.dataset_uri, sep=self.column_separator, usecols=columns
+            self.dataset_uri,
+            sep=self.column_separator,
+            usecols=columns,
         )
 
         # 2) Rename columns

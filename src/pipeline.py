@@ -1,5 +1,6 @@
 """Pipeline used to create a stable diffusion dataset from a set of given images."""
 import logging
+
 from fondant.pipeline import ComponentOp, Pipeline
 
 logger = logging.getLogger(__name__)
