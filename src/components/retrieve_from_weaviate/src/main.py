@@ -16,7 +16,7 @@ class RetrieveChunks(PandasTransformComponent):
         self.class_name = class_name
         self.k = top_k
 
-    def retrieve_chunks(self, vector_query: str):
+    def retrieve_chunks(self, vector_query: list):
         """Get results from weaviate database."""
         result = (
             self.client.query.get(self.class_name, ["passage"])
@@ -29,7 +29,7 @@ class RetrieveChunks(PandasTransformComponent):
         return [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-        dataframe[("text", "retrieved_chunks")] = dataframe[
+        dataframe[("text", "retrieved+chunks")] = dataframe[
             ("text", "embedding")
         ].apply(self.retrieve_chunks)
         return dataframe
