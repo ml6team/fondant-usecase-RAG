@@ -5,23 +5,19 @@ image: ghcr.io/ml6team/retrieve_from_weaviate:dev
 
 consumes:
   text: #TODO: fill in here
-    fields:
-      data:
-        type: string
-      embedding:
-        type: array
-        items:
-          type: float32
+    type: string
+  embedding:
+    type: array
+    items:
+      type: float32
 
 produces:
   text: #TODO: fill in here
-    fields:
-      data:
-        type: string
-      retrieved+chunks:
-        type: array
-        items:
-          type: string
+    type: string
+  retrieved_chunks:
+    type: array
+    items:
+      type: string
 
 args:
   weaviate_url:
