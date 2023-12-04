@@ -1,0 +1,207 @@
+name: evaluation-pipeline
+services:
+  aggregate_eval_results:
+    build:
+      args: []
+      context: /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/aggregate_eval_results
+    command:
+    - --metadata
+    - '{"base_path": "./data-dir", "pipeline_name": "evaluation-pipeline", "run_id":
+      "evaluation-pipeline-20231204153800", "component_id": "aggregate_eval_results",
+      "cache_key": "b33e1e742bee7c4ceeae2897fa4edbd7"}'
+    - --output_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/aggregate_eval_results/manifest.json
+    - --cache
+    - 'True'
+    - --cluster_type
+    - default
+    - --component_spec
+    - '{"name": "aggregate_eval_results", "description": "Component that aggregates
+      results of the evaluation of the retriever", "image": "ghcr.io/ml6team/aggregate_eval_results:dev",
+      "consumes": {"context_precision": {"type": "float32"}, "context_relevancy":
+      {"type": "float32"}}, "produces": {"metric": {"type": "string"}, "score": {"type":
+      "float32"}}}'
+    - --input_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/retriever_eval/manifest.json
+    depends_on:
+      retriever_eval:
+        condition: service_completed_successfully
+    labels:
+      pipeline_description: Pipeline to evaluate     a RAG solution
+    ports:
+    - 8787:8787
+    volumes:
+    - /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/local_file:/data
+  embed_text:
+    command:
+    - --metadata
+    - '{"base_path": "./data-dir", "pipeline_name": "evaluation-pipeline", "run_id":
+      "evaluation-pipeline-20231204153800", "component_id": "embed_text", "cache_key":
+      "196f67993ab223f82d0c2a1d6aa9c3fc"}'
+    - --output_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/embed_text/manifest.json
+    - --model_provider
+    - huggingface
+    - --model
+    - all-MiniLM-L6-v2
+    - --cache
+    - 'True'
+    - --cluster_type
+    - default
+    - --component_spec
+    - '{"name": "Embed text", "description": "Component that generates embeddings
+      of text passages.", "image": "fndnt/embed_text:0.8.dev3", "tags": ["Text processing"],
+      "consumes": {"text": {"type": "string"}}, "produces": {"embedding": {"type":
+      "array", "items": {"type": "float32"}}}, "args": {"model_provider": {"description":
+      "The provider of the model - corresponding to langchain embedding classes. \nCurrently
+      the following providers are supported: aleph_alpha, cohere, huggingface, openai,
+      \nvertexai.\n", "type": "str", "default": "huggingface"}, "model": {"description":
+      "The model to generate embeddings from. \nChoose an available model name to
+      pass to the model provider''s langchain embedding class.\n", "type": "str",
+      "default": "None"}, "api_keys": {"description": "The API keys to use for the
+      model provider that are written to environment variables.\nPass only the keys
+      required by the model provider or conveniently pass all keys you will ever need.
+      \nPay attention how to name the dictionary keys so that they can be used by
+      the model provider.\n", "type": "dict", "default": {}}, "auth_kwargs": {"description":
+      "Additional keyword arguments required for api initialization/authentication.\n",
+      "type": "dict", "default": {}}}}'
+    - --input_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/load_from_csv_file/manifest.json
+    depends_on:
+      load_from_csv_file:
+        condition: service_completed_successfully
+    image: fndnt/embed_text:0.8.dev3
+    labels:
+      pipeline_description: Pipeline to evaluate     a RAG solution
+    ports:
+    - 8787:8787
+    volumes:
+    - /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/local_file:/data
+  load_from_csv_file:
+    build:
+      args: []
+      context: /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/load_from_csv
+    command:
+    - --metadata
+    - '{"base_path": "./data-dir", "pipeline_name": "evaluation-pipeline", "run_id":
+      "evaluation-pipeline-20231204153800", "component_id": "load_from_csv_file",
+      "cache_key": "a68a798090623798d9de565a3c027720"}'
+    - --output_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/load_from_csv_file/manifest.json
+    - --dataset_uri
+    - /data/wikitext_1000_q.csv
+    - --column_separator
+    - ;
+    - --column_name_mapping
+    - '{"question": "text"}'
+    - --cache
+    - 'True'
+    - --cluster_type
+    - default
+    - --component_spec
+    - '{"name": "Load from csv file", "description": "Component that loads a dataset
+      from a csv file", "image": "ghcr.io/ml6team/load_from_csv:dev", "produces":
+      {"text": {"type": "string"}}, "args": {"dataset_uri": {"description": "The remote
+      path to the parquet file/folder containing the dataset", "type": "str"}, "column_separator":
+      {"description": "Define the column separator of the csv file", "type": "str"},
+      "column_name_mapping": {"description": "Mapping of the consumed dataset", "type":
+      "dict", "default": {}}, "n_rows_to_load": {"description": "Optional argument
+      that defines the number of rows to load. Useful for testing pipeline runs on
+      a small scale", "type": "int", "default": "None"}, "index_column": {"description":
+      "Column to set index to in the load component, if not specified a default globally
+      unique index will be set", "type": "str", "default": "None"}}}'
+    depends_on: {}
+    labels:
+      pipeline_description: Pipeline to evaluate     a RAG solution
+    ports:
+    - 8787:8787
+    volumes:
+    - /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/local_file:/data
+  retrieve_from_weaviate:
+    build:
+      args: []
+      context: /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/retrieve_from_weaviate
+    command:
+    - --metadata
+    - '{"base_path": "./data-dir", "pipeline_name": "evaluation-pipeline", "run_id":
+      "evaluation-pipeline-20231204153800", "component_id": "retrieve_from_weaviate",
+      "cache_key": "ab26c46aaab56daae23166fe9e261d1b"}'
+    - --output_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/retrieve_from_weaviate/manifest.json
+    - --weaviate_url
+    - http://host.docker.internal:8080
+    - --class_name
+    - Index
+    - --top_k
+    - '2'
+    - --cache
+    - 'True'
+    - --cluster_type
+    - default
+    - --component_spec
+    - '{"name": "retrieve_from_weaviate", "description": "Component that retrieves
+      chunks from a weaviate vectorDB", "image": "ghcr.io/ml6team/retrieve_from_weaviate:dev",
+      "consumes": {"text": {"type": "string"}, "embedding": {"type": "array", "items":
+      {"type": "float32"}}}, "produces": {"text": {"type": "string"}, "retrieved_chunks":
+      {"type": "array", "items": {"type": "string"}}}, "args": {"weaviate_url": {"description":
+      "The URL of the weaviate instance.", "type": "str", "default": "http://localhost:8080"},
+      "class_name": {"description": "The name of the weaviate class that will be created
+      and used to store the embeddings. Should follow the weaviate naming conventions.",
+      "type": "str"}, "top_k": {"description": "Number of chunks to retrieve", "type":
+      "int"}}}'
+    - --input_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/embed_text/manifest.json
+    depends_on:
+      embed_text:
+        condition: service_completed_successfully
+    labels:
+      pipeline_description: Pipeline to evaluate     a RAG solution
+    ports:
+    - 8787:8787
+    volumes:
+    - /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/local_file:/data
+  retriever_eval:
+    build:
+      args: []
+      context: /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/retriever_eval
+    command:
+    - --metadata
+    - '{"base_path": "./data-dir", "pipeline_name": "evaluation-pipeline", "run_id":
+      "evaluation-pipeline-20231204153800", "component_id": "retriever_eval", "cache_key":
+      "a5ce7da3134cf1c99f2b406da146dab4"}'
+    - --output_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/retriever_eval/manifest.json
+    - --llm_name
+    - OpenAI
+    - --llm_kwargs
+    - '{"openai_api_key": "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"}'
+    - --metrics
+    - '["context_precision", "context_relevancy"]'
+    - --cache
+    - 'True'
+    - --cluster_type
+    - default
+    - --component_spec
+    - '{"name": "retriever_eval", "description": "Component that evaluates the retriever
+      using RAGAS", "image": "ghcr.io/ml6team/retriever_eval:dev", "consumes": {"text":
+      {"type": "string"}, "retrieved_chunks": {"type": "array", "items": {"type":
+      "string"}}}, "produces": {"question": {"type": "string"}, "contexts": {"type":
+      "array", "items": {"type": "string"}}, "context_precision": {"type": "float32"},
+      "context_relevancy": {"type": "float32"}}, "args": {"module": {"description":
+      "Module from which the LLM is imported. Defaults to langchain.llms", "type":
+      "str", "default": "langchain.llms"}, "llm_name": {"description": "Name of the
+      selected llm", "type": "str"}, "llm_kwargs": {"description": "Arguments of the
+      selected llm", "type": "dict"}, "metrics": {"description": "RAGAS metrics to
+      compute", "type": "list", "items": {"type": "str"}}}}'
+    - --input_manifest_path
+    - ./data-dir/evaluation-pipeline/evaluation-pipeline-20231204153800/retrieve_from_weaviate/manifest.json
+    depends_on:
+      retrieve_from_weaviate:
+        condition: service_completed_successfully
+    labels:
+      pipeline_description: Pipeline to evaluate     a RAG solution
+    ports:
+    - 8787:8787
+    volumes:
+    - /Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/local_file:/data
+version: '3.8'

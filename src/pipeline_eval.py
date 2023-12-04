@@ -15,7 +15,7 @@ pipeline = Pipeline(
 )
 
 load_from_csv = ComponentOp(
-    component_dir="/Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/load_from_csv",
+    component_dir="components/load_from_csv",
     arguments={
         # Add arguments
         "dataset_uri": "/data/wikitext_1000_q.csv",
@@ -33,7 +33,7 @@ embed_text_op = ComponentOp.from_registry(
 )
 
 retrieve_chunks = ComponentOp(
-    component_dir="/Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/retrieve_from_weaviate",
+    component_dir="components/retrieve_from_weaviate",
     arguments={
         "weaviate_url": "http://host.docker.internal:8080",
         "class_name": "Index",
@@ -42,7 +42,7 @@ retrieve_chunks = ComponentOp(
 )
 
 retriever_eval = ComponentOp(
-    component_dir="/Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/retriever_eval",
+    component_dir="components/retriever_eval",
     arguments={
         "llm_name": "OpenAI",
         "llm_kwargs": {"openai_api_key": ""},
@@ -51,7 +51,7 @@ retriever_eval = ComponentOp(
 )
 
 aggregate_results = ComponentOp(
-    component_dir="/Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/aggregate_eval_results",
+    component_dir="components/aggregate_eval_results",
 )
 
 # Construct your pipeline

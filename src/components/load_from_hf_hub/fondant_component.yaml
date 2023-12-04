@@ -1,6 +1,6 @@
 name: Load from huggingface hub
 description: Component that loads a dataset from huggingface hub
-image: fndnt/load_from_hf_hub:0.8.dev2
+image: fndnt/load_from_hf_hub:0.8.dev3
 
 produces:
   text:
