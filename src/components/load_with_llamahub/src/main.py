@@ -54,29 +54,6 @@ class LlamaHubReader(DaskLoadComponent):
                 [sys.executable, "-m", "pip", "install", requirement],
             )
 
-    def get_columns_to_keep(self) -> t.List[str]:
-        # Only read required columns
-        columns = []
-
-        if self.column_name_mapping:
-            invert_column_name_mapping = {
-                v: k for k, v in self.column_name_mapping.items()
-            }
-        else:
-            invert_column_name_mapping = {}
-
-        for field_name, field in self.spec.produces.items():
-            column_name = field_name
-            if invert_column_name_mapping and column_name in invert_column_name_mapping:
-                columns.append(invert_column_name_mapping[column_name])
-            else:
-                columns.append(column_name)
-
-        if self.index_column is not None:
-            columns.append(self.index_column)
-
-        return columns
-
     def set_df_index(self, dask_df: dd.DataFrame) -> dd.DataFrame:
         if self.index_column is None:
             logger.info(
