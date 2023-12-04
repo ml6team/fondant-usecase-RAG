@@ -12,8 +12,6 @@ consumes:
       type: float32
 
 produces:
-  text: #TODO: fill in here
-    type: string
   retrieved_chunks:
     type: array
     items:

@@ -12,12 +12,7 @@ consumes:
       type: string
 
 produces:
-  question: #TODO: keep question and contexts, add/retrieve chosen metrics to compute
-    type: string
-  contexts:
-    type: array
-    items:
-      type: string
+  #TODO: add/retrieve chosen metrics to compute
   context_precision:
     type: float32
   context_relevancy:

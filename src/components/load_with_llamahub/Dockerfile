@@ -10,10 +10,8 @@ COPY requirements.txt /
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Set the working directory to the component folder
-WORKDIR /component/src
-
-# Copy over src-files
-COPY src/ .
+WORKDIR /component
+COPY src/ src/
 
 FROM base as test
 COPY tests/ tests/
@@ -23,3 +21,4 @@ RUN python -m pytest tests
 FROM base
 WORKDIR /component/src
 ENTRYPOINT ["fondant", "execute", "main"]
+

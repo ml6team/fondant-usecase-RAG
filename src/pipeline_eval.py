@@ -50,9 +50,7 @@ retriever_eval = ComponentOp(
     },
 )
 
-aggregate_results = ComponentOp(
-    component_dir="/Users/hakimamri/Documents/GitHub/fondant-usecase-RAG/src/components/aggregate_eval_results",
-)
+aggregate_results = ComponentOp(component_dir="components/aggregate_eval_results")
 
 # Construct your pipeline
 pipeline.add_op(load_from_csv)
