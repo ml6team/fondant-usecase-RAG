@@ -19,8 +19,8 @@ load_from_hf_hub = ComponentOp(
     arguments={
         # Add arguments
         "dataset_name": "wikitext@~parquet",
-        "column_name_mapping": {"text": "text_data"},
-        "n_rows_to_load": 100,
+        "column_name_mapping": {"text": "text"},
+        "n_rows_to_load": 1000,
     },
 )
 

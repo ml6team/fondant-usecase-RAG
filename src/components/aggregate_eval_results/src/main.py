@@ -12,8 +12,6 @@ class AggregateResults(DaskTransformComponent):
         agg_df = agg.to_frame(name="score")
         agg_df["metric"] = agg.index
         agg_results_df = agg_df[["metric", "score"]]
-        agg_results_df = agg_results_df.reset_index(drop=True).rename(
-            columns={"metric": "text_metric", "score": "text_score"},
-        )
+        agg_results_df = agg_results_df.reset_index(drop=True)
 
         return agg_results_df

@@ -20,7 +20,7 @@ load_from_csv = ComponentOp(
         # Add arguments
         "dataset_uri": "/data/wikitext_1000_q.csv",
         "column_separator": ";",
-        "column_name_mapping": {"question": "text_data"},
+        "column_name_mapping": {"question": "text"},
     },
 )
 
@@ -50,7 +50,9 @@ retriever_eval = ComponentOp(
     },
 )
 
-aggregate_results = ComponentOp(component_dir="components/aggregate_eval_results")
+aggregate_results = ComponentOp(
+    component_dir="components/aggregate_eval_results",
+)
 
 # Construct your pipeline
 pipeline.add_op(load_from_csv)

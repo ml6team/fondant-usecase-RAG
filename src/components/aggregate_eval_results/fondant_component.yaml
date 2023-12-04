@@ -3,18 +3,15 @@ name: aggregate_eval_results
 description: Component that aggregates results of the evaluation of the retriever
 image: ghcr.io/ml6team/aggregate_eval_results:dev
 
-consumes:
-  text: #TODO: add/retrieve metrics to consider
-    fields:
-      context+precision:
-        type: float32
-      context+relevancy:
-        type: float32
+consumes: #TODO: add/retrieve metrics to consider
+  context_precision:
+    type: float32
+  context_relevancy:
+    type: float32 
+
 
 produces:
-  text:
-    fields:
-      metric:
-        type: string
-      score:
-        type: float32
+  metric:
+    type: string
+  score:
+    type: float32

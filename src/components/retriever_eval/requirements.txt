@@ -1,4 +1,4 @@
-fondant[component]==0.7.0
+fondant[component]==0.8.dev3
 ragas==0.0.20
 transformers==4.35.2
 torch==2.1.1

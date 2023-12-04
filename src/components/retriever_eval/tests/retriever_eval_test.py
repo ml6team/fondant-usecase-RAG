@@ -5,11 +5,11 @@ from main import RetrieverEval
 def test_transform():
     input_dataframe = pd.DataFrame(
         {
-            "data": [
+            "text": [
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
                 "Sed massa massa, interdum a porttitor sit amet, semper eget nunc?",
             ],
-            "retrieved+chunks": [
+            "retrieved_chunks": [
                 [
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
                         Quisque ut efficitur neque. Aenean mollis eleifend est, \
@@ -44,10 +44,6 @@ def test_transform():
                 ],
             ],
         },
-    )
-
-    input_dataframe.columns = pd.MultiIndex.from_product(
-        [["text"], input_dataframe.columns],
     )
 
     component = RetrieverEval(
@@ -99,13 +95,9 @@ def test_transform():
                         sed tellus egestas fermentum.",
                 ],
             ],
-            "context+precision": 0.15,
-            "context+relevancy": 0.35,
+            "context_precision": 0.15,
+            "context_relevancy": 0.35,
         },
-    )
-
-    expected_output_dataframe.columns = pd.MultiIndex.from_product(
-        [["text"], expected_output_dataframe.columns],
     )
 
     # Check if columns are the same

@@ -54,7 +54,7 @@ class RetrieverEval(PandasTransformComponent):
     @staticmethod
     def create_hf_ds(dataframe: pd.DataFrame):
         dataframe = dataframe.rename(
-            columns={"data": "question", "retrieved+chunks": "contexts"},
+            columns={"text": "question", "retrieved_chunks": "contexts"},
         )
         return Dataset.from_pandas(dataframe)
 
@@ -63,7 +63,7 @@ class RetrieverEval(PandasTransformComponent):
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         hf_dataset = self.create_hf_ds(
-            dataframe=dataframe["text"][["data", "retrieved+chunks"]],
+            dataframe=dataframe[["text", "retrieved_chunks"]],
         )
         if "id" in hf_dataset.column_names:
             hf_dataset = hf_dataset.remove_columns("id")
@@ -71,11 +71,5 @@ class RetrieverEval(PandasTransformComponent):
         result = self.ragas_eval(dataset=hf_dataset)
         results_df = result.to_pandas()
         results_df.index = results_df.index.astype(str)
-        # rename columns to avoid issues with following component
-        results_df.columns = results_df.columns.str.replace("_", "+")
-        # Set multi-index column for the expected subset and field
-        results_df.columns = pd.MultiIndex.from_product(
-            [["text"], results_df.columns],
-        )
 
         return results_df

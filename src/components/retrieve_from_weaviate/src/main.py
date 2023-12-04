@@ -29,7 +29,7 @@ class RetrieveChunks(PandasTransformComponent):
         return [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-        dataframe[("text", "retrieved+chunks")] = dataframe[
-            ("text", "embedding")
-        ].apply(self.retrieve_chunks)
+        dataframe["retrieved_chunks"] = dataframe["embedding"].apply(
+            self.retrieve_chunks,
+        )
         return dataframe
