@@ -1,25 +1,24 @@
 import logging
-import os
 from pathlib import Path
 
 import pandas as pd
+import weaviate
 from fondant.pipeline import ComponentOp, Pipeline
 from fondant.pipeline.compiler import DockerCompiler
 from fondant.pipeline.runner import DockerRunner
-
-import weaviate
 from iterative_eval_abstracts.read_output_data import read_latest_data
 
 logger = logging.getLogger(__name__)
 
-class IterativeEvaluation():
+
+class IterativeEvaluation:
     def __init__(
-            self,
-            pipeline_dir: str,
-            embed_model_provider: str,
-            embed_model: str,
-            weaviate_url: str,
-            weaviate_class_name: str
+        self,
+        pipeline_dir: str,
+        embed_model_provider: str,
+        embed_model: str,
+        weaviate_url: str,
+        weaviate_class_name: str,
     ):
         self.base_path = pipeline_dir
         self.embed_model_provider = embed_model_provider
@@ -28,33 +27,34 @@ class IterativeEvaluation():
         self.weaviate_class_name = weaviate_class_name
 
     def run_indexing_pipeline(
-            self,
-            hf_dataset_name: str,
-            data_column_name: str,
-            n_rows_to_load: int,
-            chunk_size: int,
-            chunk_overlap: int,
+        self,
+        hf_dataset_name: str,
+        data_column_name: str,
+        n_rows_to_load: int,
+        chunk_size: int,
+        chunk_overlap: int,
     ) -> dict:
-
         Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
         pipeline = Pipeline(
-            pipeline_name="ingestion-pipeline",  # Add a unique pipeline name to easily track your progress and data
-            pipeline_description="Pipeline to prepare and process data for building a RAG solution",
-            base_path=self.base_path, # The demo pipelines uses a local directory to store the data.
+            # Add a unique pipeline name to easily track your progress and data
+            pipeline_name="ingestion-pipeline",
+            pipeline_description="Pipeline to prepare and process data \
+            for building a RAG solution",
+            # The demo pipelines uses a local directory to store the data.
+            base_path=self.base_path,
         )
 
         load_from_hf_hub = ComponentOp(
-        component_dir="components/load_from_hf_hub",
-        arguments={
-            # Add arguments
-            "dataset_name": hf_dataset_name,
-            # Define the column mapping between the huggingface dataset and the Fondant dataframe
-            "column_name_mapping": {
-                data_column_name: "text"
+            component_dir="components/load_from_hf_hub",
+            arguments={
+                # Add arguments
+                "dataset_name": hf_dataset_name,
+                "column_name_mapping": {
+                    data_column_name: "text",
+                },
+                "n_rows_to_load": n_rows_to_load,
             },
-            "n_rows_to_load": n_rows_to_load
-            }
         )
         pipeline.add_op(load_from_hf_hub)
 
@@ -63,7 +63,7 @@ class IterativeEvaluation():
             arguments={
                 "chunk_size": chunk_size,
                 "chunk_overlap": chunk_overlap,
-            }
+            },
         )
         pipeline.add_op(chunk_text_op, dependencies=load_from_hf_hub)
 
@@ -72,7 +72,7 @@ class IterativeEvaluation():
             arguments={
                 "model_provider": self.embed_model_provider,
                 "model": self.embed_model,
-            }
+            },
         )
         pipeline.add_op(embed_text_op, dependencies=chunk_text_op)
 
@@ -80,8 +80,8 @@ class IterativeEvaluation():
             name="index_weaviate",
             arguments={
                 "weaviate_url": self.weaviate_url,
-                "class_name": self.weaviate_class_name,  # Add a unique class name to show up on the leaderboard
-            }
+                "class_name": self.weaviate_class_name,
+            },
         )
         pipeline.add_op(index_weaviate_op, dependencies=embed_text_op)
 
@@ -91,25 +91,26 @@ class IterativeEvaluation():
         weaviate_client = weaviate.Client(self.weaviate_url)
 
         return weaviate_client.schema.get(self.weaviate_class_name)
-    
-    def run_evaluation_pipeline(
-            self,
-            csv_dataset_uri: str,
-            csv_column_separator: str,
-            question_column_name: str,
-            top_k: int,
-            llm_name: str,
-            llm_kwargs: dict,
-            metrics: list
-    ) -> pd.DataFrame:
 
+    def run_evaluation_pipeline(
+        self,
+        csv_dataset_uri: str,
+        csv_column_separator: str,
+        question_column_name: str,
+        top_k: int,
+        llm_name: str,
+        llm_kwargs: dict,
+        metrics: list,
+    ) -> pd.DataFrame:
         Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
         pipeline_eval = Pipeline(
-            pipeline_name="evaluation-pipeline",  # Add a unique pipeline name to easily track your progress and data
+            # Add a unique pipeline name to easily track your progress and data
+            pipeline_name="evaluation-pipeline",
             pipeline_description="Pipeline to evaluate \
             a RAG solution",
-            base_path=self.base_path, # The demo pipelines uses a local directory to store the data.
+            # The demo pipelines uses a local directory to store the data.
+            base_path=self.base_path,
         )
 
         load_from_csv = ComponentOp(
@@ -133,7 +134,7 @@ class IterativeEvaluation():
         )
         pipeline_eval.add_op(embed_text_op, dependencies=load_from_csv)
 
-        #TODO: modify when components are in the registry
+        # TODO: modify when components are in the registry
         retrieve_chunks = ComponentOp(
             component_dir="components/retrieve_from_weaviate",
             arguments={
@@ -167,4 +168,3 @@ class IterativeEvaluation():
             pipeline_name="evaluation-pipeline",
             component_name="aggregate_eval_results",
         )
-        
