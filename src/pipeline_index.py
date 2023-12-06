@@ -5,21 +5,21 @@ from fondant.pipeline import ComponentOp, Pipeline
 
 logger = logging.getLogger(__name__)
 
-def create_pipeline(
-        #fixed args
-        pipeline_dir: str,
-        embed_model_provider: str,
-        embed_model: str,
-        weaviate_url: str,
-        weaviate_class_name: str,
-        #custom args
-        hf_dataset_name: str,
-        data_column_name: str,
-        n_rows_to_load: int,
-        chunk_size: int,
-        chunk_overlap: int,
-):
 
+def create_pipeline(
+    # fixed args
+    pipeline_dir: str,
+    embed_model_provider: str,
+    embed_model: str,
+    weaviate_url: str,
+    weaviate_class_name: str,
+    # custom args
+    hf_dataset_name: str,
+    data_column_name: str,
+    n_rows_to_load: int,
+    chunk_size: int,
+    chunk_overlap: int,
+):
     indexing_pipeline = Pipeline(
         pipeline_name="ingestion-pipeline",
         pipeline_description="Pipeline to prepare and process \
@@ -36,6 +36,7 @@ def create_pipeline(
             "column_name_mapping": {data_column_name: "text"},
             "n_rows_to_load": n_rows_to_load,
         },
+        cache=False
     )
 
     chunk_text_op = ComponentOp.from_registry(
@@ -44,6 +45,7 @@ def create_pipeline(
             "chunk_size": chunk_size,
             "chunk_overlap": chunk_overlap,
         },
+        cache=False
     )
 
     embed_text_op = ComponentOp.from_registry(
@@ -52,6 +54,7 @@ def create_pipeline(
             "model_provider": embed_model_provider,
             "model": embed_model,
         },
+        cache=False
     )
 
     index_weaviate_op = ComponentOp.from_registry(
@@ -60,6 +63,7 @@ def create_pipeline(
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class_name,
         },
+        cache=False
     )
 
     # Construct your pipeline
@@ -69,6 +73,7 @@ def create_pipeline(
     indexing_pipeline.add_op(index_weaviate_op, dependencies=embed_text_op)
 
     return indexing_pipeline
+
 
 if __name__ == "__main__":
     pipeline = create_pipeline(
@@ -81,5 +86,5 @@ if __name__ == "__main__":
         data_column_name="text",
         n_rows_to_load=1000,
         chunk_size=512,
-        chunk_overlap=32
+        chunk_overlap=32,
     )

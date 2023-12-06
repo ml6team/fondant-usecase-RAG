@@ -5,23 +5,24 @@ from fondant.pipeline import ComponentOp, Pipeline
 
 logger = logging.getLogger(__name__)
 
-def create_pipeline(
-        #fixed args
-        pipeline_dir: str,
-        embed_model_provider: str,
-        embed_model: str,
-        weaviate_url: str,
-        weaviate_class_name: str,
-        #custom args
-        csv_dataset_uri: str,
-        csv_column_separator: str,
-        question_column_name: str,
-        top_k: int,
-        llm_name: str,
-        llm_kwargs: dict,
-        metrics: list,
-):
 
+def create_pipeline(
+    # fixed args
+    pipeline_dir: str,
+    embed_model_provider: str,
+    embed_model: str,
+    weaviate_url: str,
+    weaviate_class_name: str,
+    # custom args
+    csv_dataset_uri: str,
+    csv_column_separator: str,
+    question_column_name: str,
+    top_k: int,
+    llm_name: str,
+    llm_kwargs: dict,
+    metrics: list,
+    module: str = "langchain.llms"
+):
     evaluation_pipeline = Pipeline(
         pipeline_name="evaluation-pipeline",
         pipeline_description="Pipeline to evaluate \
@@ -38,6 +39,7 @@ def create_pipeline(
             "column_separator": csv_column_separator,
             "column_name_mapping": {question_column_name: "text"},
         },
+        cache=False
     )
 
     embed_text_op = ComponentOp.from_registry(
@@ -46,6 +48,7 @@ def create_pipeline(
             "model_provider": embed_model_provider,
             "model": embed_model,
         },
+        cache=False
     )
 
     retrieve_chunks = ComponentOp(
@@ -55,18 +58,24 @@ def create_pipeline(
             "class_name": weaviate_class_name,
             "top_k": top_k,
         },
+        cache=False
     )
 
     retriever_eval = ComponentOp(
         component_dir="components/retriever_eval",
         arguments={
+            "module": module,
             "llm_name": llm_name,
             "llm_kwargs": llm_kwargs,
             "metrics": metrics,
         },
+        cache=False
     )
 
-    aggregate_results = ComponentOp(component_dir="components/aggregate_eval_results")
+    aggregate_results = ComponentOp(
+        component_dir="components/aggregate_eval_results",
+        cache=False
+        )
 
     # Construct your pipeline
     evaluation_pipeline.add_op(load_from_csv)
@@ -77,6 +86,7 @@ def create_pipeline(
 
     return evaluation_pipeline
 
+
 if __name__ == "__main__":
     pipeline = create_pipeline(
         pipeline_dir="./data-dir",
@@ -84,11 +94,11 @@ if __name__ == "__main__":
         embed_model="all-MiniLM-L6-v2",
         weaviate_url="http://host.docker.internal:8080",
         weaviate_class_name="Pipeline_1",
-        csv_dataset_uri="/data/wikitext_1000_q.csv", #make sure it is the same as mounted file
+        csv_dataset_uri="/data/wikitext_1000_q.csv",  # make sure it is the same as mounted file
         csv_column_separator=";",
         question_column_name="question",
         top_k=3,
         llm_name="OpenAI",
         llm_kwargs={"openai_api_key": ""},
-        metrics=["context_precision", "context_relevancy"]
+        metrics=["context_precision", "context_relevancy"],
     )
