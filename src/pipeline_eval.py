@@ -21,7 +21,7 @@ def create_pipeline(
     llm_name: str,
     llm_kwargs: dict,
     metrics: list,
-    module: str = "langchain.llms"
+    module: str = "langchain.llms",
 ):
     evaluation_pipeline = Pipeline(
         pipeline_name="evaluation-pipeline",
@@ -39,7 +39,7 @@ def create_pipeline(
             "column_separator": csv_column_separator,
             "column_name_mapping": {question_column_name: "text"},
         },
-        cache=False
+        cache=False,
     )
 
     embed_text_op = ComponentOp.from_registry(
@@ -48,7 +48,7 @@ def create_pipeline(
             "model_provider": embed_model_provider,
             "model": embed_model,
         },
-        cache=False
+        cache=False,
     )
 
     retrieve_chunks = ComponentOp(
@@ -58,7 +58,7 @@ def create_pipeline(
             "class_name": weaviate_class_name,
             "top_k": top_k,
         },
-        cache=False
+        cache=False,
     )
 
     retriever_eval = ComponentOp(
@@ -69,13 +69,13 @@ def create_pipeline(
             "llm_kwargs": llm_kwargs,
             "metrics": metrics,
         },
-        cache=False
+        cache=False,
     )
 
     aggregate_results = ComponentOp(
         component_dir="components/aggregate_eval_results",
-        cache=False
-        )
+        cache=False,
+    )
 
     # Construct your pipeline
     evaluation_pipeline.add_op(load_from_csv)
