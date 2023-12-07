@@ -1,7 +1,8 @@
 """Pipeline used to evaluate a RAG pipeline."""
 import logging
 
-from fondant.pipeline import ComponentOp, Pipeline
+import pyarrow as pa
+from fondant.pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -24,65 +25,53 @@ def create_pipeline(
     module: str = "langchain.llms",
 ):
     evaluation_pipeline = Pipeline(
-        pipeline_name="evaluation-pipeline",
-        pipeline_description="Pipeline to evaluate \
+        name="evaluation-pipeline",
+        description="Pipeline to evaluate \
         a RAG solution",
         base_path=pipeline_dir,  # The demo pipelines uses a local \
         # directory to store the data.
     )
 
-    load_from_csv = ComponentOp(
-        component_dir="components/load_from_csv",
+    load_from_csv = evaluation_pipeline.read(
+        "components/load_from_csv",
         arguments={
             # Add arguments
             "dataset_uri": csv_dataset_uri,
             "column_separator": csv_column_separator,
             "column_name_mapping": {question_column_name: "text"},
         },
-        cache=False,
     )
 
-    embed_text_op = ComponentOp.from_registry(
-        name="embed_text",
+    embed_text_op = load_from_csv.apply(
+        "embed_text",
         arguments={
             "model_provider": embed_model_provider,
             "model": embed_model,
         },
-        cache=False,
     )
 
-    retrieve_chunks = ComponentOp(
-        component_dir="components/retrieve_from_weaviate",
+    retrieve_chunks = embed_text_op.apply(
+        "components/retrieve_from_weaviate",
         arguments={
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class_name,
             "top_k": top_k,
         },
-        cache=False,
     )
 
-    retriever_eval = ComponentOp(
-        component_dir="components/retriever_eval",
+    retriever_eval = retrieve_chunks.apply(
+        "components/retriever_eval",
         arguments={
             "module": module,
             "llm_name": llm_name,
             "llm_kwargs": llm_kwargs,
             "metrics": metrics,
         },
-        cache=False,
     )
 
-    aggregate_results = ComponentOp(
-        component_dir="components/aggregate_eval_results",
-        cache=False,
+    aggregate_results = retriever_eval.apply(
+        "components/aggregate_eval_results",
     )
-
-    # Construct your pipeline
-    evaluation_pipeline.add_op(load_from_csv)
-    evaluation_pipeline.add_op(embed_text_op, dependencies=load_from_csv)
-    evaluation_pipeline.add_op(retrieve_chunks, dependencies=embed_text_op)
-    evaluation_pipeline.add_op(retriever_eval, dependencies=retrieve_chunks)
-    evaluation_pipeline.add_op(aggregate_results, dependencies=retriever_eval)
 
     return evaluation_pipeline
 
