@@ -1,11 +1,17 @@
 import pandas as pd
-from fondant.component import PandasTransformComponent
-
 import weaviate
+from fondant.component import PandasTransformComponent
 
 
 class RetrieveChunks(PandasTransformComponent):
-    def __init__(self, *, weaviate_url: str, class_name: str, top_k: int, **kwargs) -> None:
+    def __init__(
+        self,
+        *,
+        weaviate_url: str,
+        class_name: str,
+        top_k: int,
+        **kwargs,
+    ) -> None:
         """
         Args:
             weaviate_url: An argument passed to the component.

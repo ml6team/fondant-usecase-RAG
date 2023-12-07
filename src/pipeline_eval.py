@@ -1,7 +1,6 @@
 """Pipeline used to evaluate a RAG pipeline."""
 import logging
 
-import pyarrow as pa
 from fondant.pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
@@ -69,7 +68,7 @@ def create_pipeline(
         },
     )
 
-    aggregate_results = retriever_eval.apply(
+    retriever_eval.apply(
         "components/aggregate_eval_results",
     )
 

@@ -13,7 +13,7 @@ class RetrieverEval(PandasTransformComponent):
         llm_name: str,
         llm_kwargs: dict,
         metrics: list,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Args:
