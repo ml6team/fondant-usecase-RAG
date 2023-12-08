@@ -5,17 +5,18 @@ from fondant.pipeline import Pipeline
 
 def create_pipeline(
     # fixed args
-    pipeline_dir: str,
-    embed_model_provider: str,
-    embed_model: str,
-    weaviate_url: str,
-    weaviate_class_name: str,
+    pipeline_dir: str = "./data-dir",
+    embed_model_provider: str = "huggingface",
+    embed_model: str = "all-MiniLM-L6-v2",
+    weaviate_url: str = "http://host.docker.internal:8080",
+    weaviate_class_name: str = "Pipeline1",
+    overwrite: bool = True,
     # custom args
-    hf_dataset_name: str,
-    data_column_name: str,
-    n_rows_to_load: int,
-    chunk_size: int,
-    chunk_overlap: int,
+    hf_dataset_name: str = "wikitext@~parquet",
+    data_column_name: str = "text",
+    n_rows_to_load: int = 1000,
+    chunk_size: int = 512,
+    chunk_overlap: int = 32,
 ):
     indexing_pipeline = Pipeline(
         name="ingestion-pipeline",
@@ -57,22 +58,8 @@ def create_pipeline(
         arguments={
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class_name,
+            "overwrite": overwrite
         },
     )
 
     return indexing_pipeline
-
-
-if __name__ == "__main__":
-    pipeline = create_pipeline(
-        pipeline_dir="./data-dir",
-        embed_model_provider="huggingface",
-        embed_model="all-MiniLM-L6-v2",
-        weaviate_url="http://host.docker.internal:8080",
-        weaviate_class_name="Pipeline_1",
-        hf_dataset_name="wikitext@~parquet",
-        data_column_name="text",
-        n_rows_to_load=1000,
-        chunk_size=512,
-        chunk_overlap=32,
-    )
