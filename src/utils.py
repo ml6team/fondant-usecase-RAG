@@ -1,5 +1,9 @@
+import os
 import socket
+from datetime import datetime
 from pathlib import Path
+
+import pandas as pd
 
 
 def get_host_ip():
@@ -17,18 +21,14 @@ def get_host_ip():
 
     return host_ip
 
+
 def create_directory_if_not_exists(path):
     p_base_path = Path(path).resolve()
     p_base_path.mkdir(parents=True, exist_ok=True)
     return str(p_base_path)
 
+
 # Read latest chosen component
-import os
-from datetime import datetime
-
-import pandas as pd
-
-
 def read_latest_data(base_path: str, pipeline_name: str, component_name: str):
     # Specify the path to the 'data' directory
     data_directory = f"{base_path}/{pipeline_name}"
