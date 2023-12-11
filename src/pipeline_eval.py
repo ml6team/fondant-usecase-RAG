@@ -66,3 +66,5 @@ def create_pipeline(  # noqa: PLR0913
     retriever_eval.apply(
         "components/aggregate_eval_results",
     )
+
+    return evaluation_pipeline
