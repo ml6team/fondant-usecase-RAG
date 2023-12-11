@@ -1,1 +1,0 @@
-/data-dir/evaluation-pipeline/evaluation-pipeline-20231208164326/load_from_csv_file/manifest.json
