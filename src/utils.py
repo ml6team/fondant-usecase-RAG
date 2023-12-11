@@ -6,14 +6,14 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from fondant.pipeline.runner import DockerRunner
-
 import pipeline_eval
 import pipeline_index
 import weaviate
+from fondant.pipeline.runner import DockerRunner
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
 
 def get_host_ip():
     try:
@@ -100,17 +100,18 @@ def extract_timestamp(folder_name):
     # Convert the timestamp string to a datetime object
     return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
 
+
 # Run parameters search and store results
-def run_parameters_search(
-        extra_volumes,
-        fixed_args,
-        fixed_index_args,
-        fixed_eval_args,
-        chunk_sizes,
-        chunk_overlaps,
-        embed_models,
-        top_ks,
-    ):
+def run_parameters_search(  # noqa: PLR0913
+    extra_volumes,
+    fixed_args,
+    fixed_index_args,
+    fixed_eval_args,
+    chunk_sizes,
+    chunk_overlaps,
+    embed_models,
+    top_ks,
+):
     # Define pipeline runner
     runner = DockerRunner()
 
@@ -119,9 +120,16 @@ def run_parameters_search(
 
     # Perform grid search
     indexes = []
-    for i, (chunk_size, chunk_overlap, embed_model) in enumerate(itertools.product(chunk_sizes, chunk_overlaps, embed_models), start=1):
+    for i, (chunk_size, chunk_overlap, embed_model) in enumerate(
+        itertools.product(chunk_sizes, chunk_overlaps, embed_models),
+        start=1,
+    ):
         index_config_class_name = f"IndexConfig{i}"
-        logging.info(f"Running indexing for {index_config_class_name} with chunk_size={chunk_size}, chunk_overlap={chunk_overlap}, embed_model={embed_model}")
+        logging.info(
+            f"Running indexing for {index_config_class_name} \
+            with chunk_size={chunk_size}, chunk_overlap={chunk_overlap}\
+            , embed_model={embed_model}",
+        )
 
         # Store Indexing configuration
         index_dict = {}
@@ -130,7 +138,7 @@ def run_parameters_search(
         index_dict["chunk_overlap"] = chunk_overlap
         index_dict["embed_model"] = embed_model
         indexes.append(index_dict)
-        
+
         # Create and Run the indexing pipeline
         indexing_pipeline = pipeline_index.create_pipeline(
             **fixed_args,
@@ -139,19 +147,25 @@ def run_parameters_search(
             chunk_overlap=chunk_overlap,
             embed_model_provider=embed_model[0],
             embed_model=embed_model[1],
-            weaviate_class_name=index_config_class_name
+            weaviate_class_name=index_config_class_name,
         )
         run_indexing_pipeline(
             runner=runner,
             index_pipeline=indexing_pipeline,
             weaviate_url=fixed_args["weaviate_url"],
-            weaviate_class_name=index_config_class_name
+            weaviate_class_name=index_config_class_name,
         )
-        
+
     parameters_search_results = []
-    for i, (index_dict, top_k) in enumerate(itertools.product(indexes, top_ks), start=1):
+    for i, (index_dict, top_k) in enumerate(
+        itertools.product(indexes, top_ks),
+        start=1,
+    ):
         rag_config_name = f"RAGConfig{i}"
-        logging.info(f"Running evaluation for {rag_config_name} with {index_dict['index_name']} and {top_k} retrieved chunks")
+        logging.info(
+            f"Running evaluation for {rag_config_name} \
+            with {index_dict['index_name']} and {top_k} retrieved chunks",
+        )
 
         # Store RAG pipeline configuration
         results_dict = {}
@@ -171,18 +185,19 @@ def run_parameters_search(
         run_evaluation_pipeline(
             runner=runner,
             eval_pipeline=evaluation_pipeline,
-            extra_volumes=extra_volumes
+            extra_volumes=extra_volumes,
         )
 
         # Save the evaluation results in the dictionary
         results_dict[f"agg_results_{rag_config_name}"] = read_latest_data(
             base_path=fixed_args["pipeline_dir"],
             pipeline_name="evaluation-pipeline",
-            component_name="aggregate_eval_results"
+            component_name="aggregate_eval_results",
         )
         parameters_search_results.append(results_dict)
 
     return parameters_search_results
+
 
 # index pipeline runner
 def run_indexing_pipeline(runner, index_pipeline, weaviate_url, weaviate_class_name):
@@ -190,9 +205,11 @@ def run_indexing_pipeline(runner, index_pipeline, weaviate_url, weaviate_class_n
     docker_weaviate_client = weaviate.Client(weaviate_url)
     return docker_weaviate_client.schema.get(weaviate_class_name)
 
+
 # eval pipeline runner
 def run_evaluation_pipeline(runner, eval_pipeline, extra_volumes):
     runner.run(input=eval_pipeline, extra_volumes=extra_volumes)
+
 
 # output evaluation results
 def read_evaluated_pipelines(parameters_search_results):
