@@ -4,12 +4,20 @@ from fondant.component import PandasTransformComponent
 
 
 class RetrieveChunks(PandasTransformComponent):
-    def __init__(self, *_, weaviate_url: str, class_name: str, top_k: int) -> None:
+    def __init__(
+        self,
+        *,
+        weaviate_url: str,
+        class_name: str,
+        top_k: int,
+        **kwargs,
+    ) -> None:
         """
         Args:
             weaviate_url: An argument passed to the component.
             class_name: Name of class to query
             top_k: Amount of context to return.
+            kwargs: Unhandled keyword arguments passed in by Fondant.
         """
         # Initialize your component here based on the arguments
         self.client = weaviate.Client(weaviate_url)

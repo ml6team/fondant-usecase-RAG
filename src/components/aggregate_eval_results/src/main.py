@@ -3,7 +3,7 @@ from fondant.component import DaskTransformComponent
 
 
 class AggregateResults(DaskTransformComponent):
-    def __init__(self, *_) -> None:
+    def __init__(self, **kwargs) -> None:
         return None
 
     def transform(self, dataframe: dd.DataFrame) -> dd.DataFrame:

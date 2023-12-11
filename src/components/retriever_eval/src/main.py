@@ -8,11 +8,12 @@ from ragas.llms import LangchainLLM
 class RetrieverEval(PandasTransformComponent):
     def __init__(
         self,
-        *_,
+        *,
         module: str,
         llm_name: str,
         llm_kwargs: dict,
         metrics: list,
+        **kwargs,
     ) -> None:
         """
         Args:
@@ -20,6 +21,7 @@ class RetrieverEval(PandasTransformComponent):
             llm_name: Name of the selected llm
             llm_kwargs: Arguments of the selected llm
             metrics: RAGAS metrics to compute.
+            kwargs: Unhandled keyword arguments passed in by Fondant.
         """
         self.llm = self.extract_llm(
             module=module,
