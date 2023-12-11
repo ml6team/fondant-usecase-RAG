@@ -3,7 +3,7 @@ import pyarrow as pa
 from fondant.pipeline import Pipeline
 
 
-def create_pipeline( # noqa: PLR0913
+def create_pipeline(  # noqa: PLR0913
     pipeline_dir: str = "./data-dir",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
@@ -57,7 +57,7 @@ def create_pipeline( # noqa: PLR0913
         arguments={
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class_name,
-            "overwrite": overwrite
+            "overwrite": overwrite,
         },
     )
 
