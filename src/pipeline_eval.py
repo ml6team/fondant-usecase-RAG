@@ -2,14 +2,13 @@
 from fondant.pipeline import Pipeline
 
 
-def create_pipeline(
-    # fixed args
+def create_pipeline( # noqa: PLR0913
     pipeline_dir: str = "./data-dir",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
     weaviate_url = "http://host.docker.internal:8080",
     weaviate_class_name: str = "Pipeline1",
-    # custom args
+    # evaluation args
     csv_dataset_uri: str = "/data/wikitext_1000_q.csv",
     csv_column_separator: str = ";",
     question_column_name: str = "question",
