@@ -22,15 +22,17 @@ pipeline = Pipeline(
     # directory to store the data.
 )
 
-load_from_hf_hub = ComponentOp(
-    component_dir="components/load_from_hf_hub",
+load_from_csv = ComponentOp(
+    component_dir="components/load_from_csv",
     arguments={
         # Add arguments
-        "dataset_name": "maastrichtlawtech/bsard",
+        "dataset_uri": "/data/articles.csv",
+        "column_separator": None,
         "column_name_mapping": {
-            "article": "text_data",
-            "reference": "text_source"
+            "reference": "text_source",
+            "article": "text_data"
             },
+
         # "n_rows_to_load": 10,
     },
     number_of_accelerators=1,
@@ -59,13 +61,13 @@ embed_text_op = ComponentOp(
 index_weaviate_op = ComponentOp(
     component_dir="components/li_write_to_vector_db",
     arguments={
-        "local_url": "http://host.docker.internal:8080",
+        "local_url": "http://host.docker.internal:8081",
         "index_name": "Belgian_Law_French"
     },
 )
 
 # Construct your pipeline
-pipeline.add_op(load_from_hf_hub)
-pipeline.add_op(get_llama_index_nodes, dependencies=load_from_hf_hub)
+pipeline.add_op(load_from_csv)
+pipeline.add_op(get_llama_index_nodes, dependencies=load_from_csv)
 pipeline.add_op(embed_text_op, dependencies=get_llama_index_nodes)
 pipeline.add_op(index_weaviate_op, dependencies=embed_text_op)
