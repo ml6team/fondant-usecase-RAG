@@ -178,7 +178,7 @@ def run_parameters_search(  # noqa: PLR0913
         start=1,
     ):
         index_config_class_name = f"IndexConfig{i}"
-        index_pipeline_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        index_pipeline_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logging.info(
             f"Running indexing for {index_config_class_name} \
             with chunk_size={chunk_size}, chunk_overlap={chunk_overlap}\
@@ -217,7 +217,7 @@ def run_parameters_search(  # noqa: PLR0913
         start=1,
     ):
         rag_config_name = f"RAGConfig{i}"
-        eval_pipeline_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        eval_pipeline_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logging.info(
             f"Running evaluation for {rag_config_name} \
             with {index_dict['index_name']} and {top_k} retrieved chunks",
@@ -252,7 +252,9 @@ def run_parameters_search(  # noqa: PLR0913
             component_name="aggregate_eval_results",
         )
         # Add fixed arguments
-        results_dict.update(fixed_args, fixed_index_args, fixed_eval_args)
+        results_dict.update(fixed_args)
+        results_dict.update(fixed_index_args)
+        results_dict.update(fixed_eval_args)
 
         parameters_search_results.append(results_dict)
 
