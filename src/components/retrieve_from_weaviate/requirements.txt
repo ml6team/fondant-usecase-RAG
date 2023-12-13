@@ -1,2 +1,0 @@
-weaviate-client==3.24.1
-fondant[component]==0.8.dev4

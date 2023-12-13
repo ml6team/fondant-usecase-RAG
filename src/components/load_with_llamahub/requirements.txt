@@ -1,2 +1,0 @@
-fondant[component]==0.8.dev2
-llama-index==0.9.9
