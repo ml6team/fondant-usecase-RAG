@@ -122,39 +122,23 @@ def extract_timestamp(folder_name):
 
 
 # Output pipelines evaluations results dataframe
-def output_results(rag_results):
-    flat_data = []
-    for results in rag_results:
-        flat_results = results.copy()
+def output_results(results):
+    flat_results = []
+    
+    for entry in results:
+        flat_entry = entry.copy()
 
-        # Flatten shared_args
-        for key, value in results["shared_args"].items():
-            flat_results[key] = value
+        for key, value in entry.items():
+            if isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    flat_entry[sub_key] = sub_value
+                del flat_entry[key]
 
-        # Flatten indexing_args
-        for key, value in results["indexing_args"].items():
-            flat_results[key] = value
+            elif isinstance(value, pd.DataFrame):
+                for sub_key, sub_value in zip(value['metric'], value['score']):
+                    flat_entry[sub_key] = sub_value
+                del flat_entry[key]
 
-        # Flatten evaluation_args
-        for key, value in results["evaluation_args"].items():
-            if key == "llm_kwargs":
-                for k, v in value.items():
-                    flat_results[f"evaluation_args_{k}"] = v
-            else:
-                flat_results[f"evaluation_args_{key}"] = value
+        flat_results.append(flat_entry)
 
-        # Flatten agg_metrics
-        agg_metrics_df = results["agg_metrics"]
-        for metric, score in zip(agg_metrics_df["metric"], agg_metrics_df["score"]):
-            flat_results[metric] = score
-
-        # Remove nested dictionaries
-        del flat_results["shared_args"]
-        del flat_results["indexing_args"]
-        del flat_results["evaluation_args"]
-        del flat_results["agg_metrics"]
-
-        flat_data.append(flat_results)
-
-        return pd.DataFrame(flat_data)
-    return None
+    return pd.DataFrame(flat_results)
