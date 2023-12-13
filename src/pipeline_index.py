@@ -50,7 +50,7 @@ def create_pipeline(  # noqa: PLR0913
         arguments={
             "model_provider": embed_model_provider,
             "model": embed_model,
-            "api_keys": api_keys
+            "api_keys": api_keys,
         },
     )
 

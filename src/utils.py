@@ -27,16 +27,16 @@ def create_directory_if_not_exists(path):
     p_base_path.mkdir(parents=True, exist_ok=True)
     return str(p_base_path)
 
-# Store pipeline results
-def store_results(
-        rag_results,
-        shared_args,
-        indexing_args,
-        evaluation_args,
-        index_pipeline_datetime,
-        eval_pipeline_datetime
-        ):
 
+# Store pipeline results
+def store_results(  # noqa: PLR0913
+    rag_results,
+    shared_args,
+    indexing_args,
+    evaluation_args,
+    index_pipeline_datetime,
+    eval_pipeline_datetime,
+):
     pipeline_dir = shared_args["pipeline_dir"]
     pipeline_name = "evaluation-pipeline"
     component_name = "aggregate_eval_results"
@@ -48,10 +48,10 @@ def store_results(
     results_dict["evaluation_args"] = evaluation_args
     results_dict["evaluation_datetime"] = eval_pipeline_datetime
     results_dict["agg_metrics"] = read_latest_data(
-                base_path=pipeline_dir,
-                pipeline_name=pipeline_name,
-                component_name=component_name,
-            )
+        base_path=pipeline_dir,
+        pipeline_name=pipeline_name,
+        component_name=component_name,
+    )
 
     rag_results.append(results_dict)
 
@@ -120,6 +120,7 @@ def extract_timestamp(folder_name):
     # Convert the timestamp string to a datetime object
     return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
 
+
 # Output pipelines evaluations results dataframe
 def output_results(rag_results):
     flat_data = []
@@ -127,32 +128,33 @@ def output_results(rag_results):
         flat_results = results.copy()
 
         # Flatten shared_args
-        for key, value in results['shared_args'].items():
+        for key, value in results["shared_args"].items():
             flat_results[key] = value
 
         # Flatten indexing_args
-        for key, value in results['indexing_args'].items():
+        for key, value in results["indexing_args"].items():
             flat_results[key] = value
 
         # Flatten evaluation_args
-        for key, value in results['evaluation_args'].items():
-            if key == 'llm_kwargs':
+        for key, value in results["evaluation_args"].items():
+            if key == "llm_kwargs":
                 for k, v in value.items():
-                    flat_results[f'evaluation_args_{k}'] = v
+                    flat_results[f"evaluation_args_{k}"] = v
             else:
-                flat_results[f'evaluation_args_{key}'] = value
+                flat_results[f"evaluation_args_{key}"] = value
 
         # Flatten agg_metrics
-        agg_metrics_df = results['agg_metrics']
-        for metric, score in zip(agg_metrics_df['metric'], agg_metrics_df['score']):
+        agg_metrics_df = results["agg_metrics"]
+        for metric, score in zip(agg_metrics_df["metric"], agg_metrics_df["score"]):
             flat_results[metric] = score
 
         # Remove nested dictionaries
-        del flat_results['shared_args']
-        del flat_results['indexing_args']
-        del flat_results['evaluation_args']
-        del flat_results['agg_metrics']
+        del flat_results["shared_args"]
+        del flat_results["indexing_args"]
+        del flat_results["evaluation_args"]
+        del flat_results["agg_metrics"]
 
         flat_data.append(flat_results)
 
         return pd.DataFrame(flat_data)
+    return None
