@@ -1,1 +1,1 @@
-fondant[component]==0.8.dev4
+fondant[component]==0.8.dev6

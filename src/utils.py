@@ -28,7 +28,36 @@ def create_directory_if_not_exists(path):
     return str(p_base_path)
 
 
-# Read latest chosen component
+# Store pipeline results
+def store_results(  # noqa: PLR0913
+    rag_results,
+    shared_args,
+    indexing_args,
+    evaluation_args,
+    index_pipeline_datetime,
+    eval_pipeline_datetime,
+):
+    pipeline_dir = shared_args["pipeline_dir"]
+    pipeline_name = "evaluation-pipeline"
+    component_name = "aggregate_eval_results"
+
+    results_dict = {}
+    results_dict["shared_args"] = shared_args
+    results_dict["indexing_datetime"] = index_pipeline_datetime
+    results_dict["indexing_args"] = indexing_args
+    results_dict["evaluation_args"] = evaluation_args
+    results_dict["evaluation_datetime"] = eval_pipeline_datetime
+    results_dict["agg_metrics"] = read_latest_data(
+        base_path=pipeline_dir,
+        pipeline_name=pipeline_name,
+        component_name=component_name,
+    )
+
+    rag_results.append(results_dict)
+
+    return rag_results
+
+
 def read_latest_data(base_path: str, pipeline_name: str, component_name: str):
     # Specify the path to the 'data' directory
     data_directory = f"{base_path}/{pipeline_name}"
@@ -90,3 +119,26 @@ def extract_timestamp(folder_name):
     timestamp_str = folder_name.split("-")[-1]
     # Convert the timestamp string to a datetime object
     return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
+
+
+# Output pipelines evaluations results dataframe
+def output_results(results):
+    flat_results = []
+
+    for entry in results:
+        flat_entry = entry.copy()
+
+        for key, value in entry.items():
+            if isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    flat_entry[sub_key] = sub_value
+                del flat_entry[key]
+
+            elif isinstance(value, pd.DataFrame):
+                for sub_key, sub_value in zip(value["metric"], value["score"]):
+                    flat_entry[sub_key] = sub_value
+                del flat_entry[key]
+
+        flat_results.append(flat_entry)
+
+    return pd.DataFrame(flat_results)

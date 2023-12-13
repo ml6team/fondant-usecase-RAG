@@ -7,6 +7,7 @@ def create_pipeline(  # noqa: PLR0913
     pipeline_dir: str = "./data-dir",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
+    embed_api_key: dict = {},
     weaviate_url="http://host.docker.internal:8080",
     weaviate_class_name: str = "Pipeline1",
     # evaluation args
@@ -43,6 +44,7 @@ def create_pipeline(  # noqa: PLR0913
         arguments={
             "model_provider": embed_model_provider,
             "model": embed_model,
+            "api_keys": embed_api_key,
         },
     )
 
