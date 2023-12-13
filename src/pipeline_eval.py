@@ -1,4 +1,5 @@
 """Fondant pipeline to evaluate a RAG pipeline."""
+import pyarrow as pa
 from fondant.pipeline import Pipeline
 
 
@@ -22,17 +23,18 @@ def create_pipeline(  # noqa: PLR0913
         name="evaluation-pipeline",
         description="Pipeline to evaluate \
         a RAG solution",
-        base_path=pipeline_dir,  # The demo pipelines uses a local \
-        # directory to store the data.
+        base_path=pipeline_dir,
     )
 
     load_from_csv = evaluation_pipeline.read(
-        "components/load_from_csv",
+        "load_from_csv",
         arguments={
-            # Add arguments
             "dataset_uri": csv_dataset_uri,
             "column_separator": csv_column_separator,
             "column_name_mapping": {question_column_name: "text"},
+        },
+        produces={
+            "text": pa.string(),
         },
     )
 
@@ -45,7 +47,7 @@ def create_pipeline(  # noqa: PLR0913
     )
 
     retrieve_chunks = embed_text_op.apply(
-        "components/retrieve_from_weaviate",
+        "retrieve_from_weaviate",
         arguments={
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class_name,
@@ -54,13 +56,13 @@ def create_pipeline(  # noqa: PLR0913
     )
 
     retriever_eval = retrieve_chunks.apply(
-        "components/retriever_eval",
+        "evaluate_ragas",
         arguments={
             "module": module,
             "llm_name": llm_name,
             "llm_kwargs": llm_kwargs,
-            "metrics": metrics,
         },
+        produces={metric: pa.float32() for metric in metrics},
     )
 
     retriever_eval.apply(
