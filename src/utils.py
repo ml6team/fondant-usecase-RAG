@@ -6,11 +6,10 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from fondant.pipeline.runner import DockerRunner
-
 import pipeline_eval
 import pipeline_index
 import weaviate
+from fondant.pipeline.runner import DockerRunner
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +35,7 @@ def create_directory_if_not_exists(path):
     p_base_path = Path(path).resolve()
     p_base_path.mkdir(parents=True, exist_ok=True)
     return str(p_base_path)
+
 
 # Store pipeline results
 def store_results(  # noqa: PLR0913
@@ -65,6 +65,7 @@ def store_results(  # noqa: PLR0913
     rag_results.append(results_dict)
 
     return rag_results
+
 
 # Read latest chosen component
 def read_latest_data(base_path: str, pipeline_name: str, component_name: str):
@@ -128,6 +129,7 @@ def extract_timestamp(folder_name):
     timestamp_str = folder_name.split("-")[-1]
     # Convert the timestamp string to a datetime object
     return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
+
 
 # Output pipelines evaluations results dataframe
 def output_results(results):
@@ -250,8 +252,8 @@ def run_parameters_search(  # noqa: PLR0913
             component_name="aggregate_eval_results",
         )
         # Add fixed arguments
-        results_dict.update(fixed_args,fixed_index_args, fixed_eval_args)
-        
+        results_dict.update(fixed_args, fixed_index_args, fixed_eval_args)
+
         parameters_search_results.append(results_dict)
 
     return parameters_search_results
