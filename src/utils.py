@@ -124,7 +124,7 @@ def extract_timestamp(folder_name):
 # Output pipelines evaluations results dataframe
 def output_results(results):
     flat_results = []
-    
+
     for entry in results:
         flat_entry = entry.copy()
 
@@ -135,7 +135,7 @@ def output_results(results):
                 del flat_entry[key]
 
             elif isinstance(value, pd.DataFrame):
-                for sub_key, sub_value in zip(value['metric'], value['score']):
+                for sub_key, sub_value in zip(value["metric"], value["score"]):
                     flat_entry[sub_key] = sub_value
                 del flat_entry[key]
 
