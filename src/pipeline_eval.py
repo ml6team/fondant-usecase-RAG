@@ -1,12 +1,14 @@
 """Fondant pipeline to evaluate a RAG pipeline."""
-from fondant.pipeline import Pipeline
+from fondant.pipeline import Pipeline, Resources
+import pyarrow as pa
 
 
 def create_pipeline(  # noqa: PLR0913
     pipeline_dir: str = "./data-dir",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
-    weaviate_url="http://host.docker.internal:8080",
+    embed_api_key: dict = {},
+    weaviate_url="http://0.0.0.0:8081",
     weaviate_class_name: str = "Pipeline1",
     # evaluation args
     csv_dataset_uri: str = "/data/wikitext_1000_q.csv",
@@ -18,22 +20,26 @@ def create_pipeline(  # noqa: PLR0913
     llm_kwargs: dict = {"openai_api_key": ""},  # TODO if use Fondant CLI
     metrics: list = ["context_precision", "context_relevancy"],
 ):
+    resources = Resources(accelerator_name="GPU", accelerator_number=1)
+
     evaluation_pipeline = Pipeline(
         name="evaluation-pipeline",
         description="Pipeline to evaluate \
         a RAG solution",
-        base_path=pipeline_dir,  # The demo pipelines uses a local \
-        # directory to store the data.
+        base_path=pipeline_dir,
     )
 
     load_from_csv = evaluation_pipeline.read(
-        "components/load_from_csv",
+        "load_from_csv",
         arguments={
-            # Add arguments
             "dataset_uri": csv_dataset_uri,
             "column_separator": csv_column_separator,
             "column_name_mapping": {question_column_name: "text"},
         },
+        produces={
+            "text": pa.string(),
+        },
+        resources=resources
     )
 
     embed_text_op = load_from_csv.apply(
@@ -41,30 +47,35 @@ def create_pipeline(  # noqa: PLR0913
         arguments={
             "model_provider": embed_model_provider,
             "model": embed_model,
+            "api_keys": embed_api_key,
         },
+        resources=resources
     )
 
     retrieve_chunks = embed_text_op.apply(
-        "components/retrieve_from_weaviate",
+        "retrieve_from_weaviate",
         arguments={
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class_name,
             "top_k": top_k,
         },
+        resources=resources
     )
 
     retriever_eval = retrieve_chunks.apply(
-        "components/retriever_eval",
+        "evaluate_ragas",
         arguments={
             "module": module,
             "llm_name": llm_name,
             "llm_kwargs": llm_kwargs,
-            "metrics": metrics,
         },
+        produces={metric: pa.float32() for metric in metrics},
+        resources=resources
     )
 
     retriever_eval.apply(
         "components/aggregate_eval_results",
+        resources=resources
     )
 
     return evaluation_pipeline
