@@ -6,10 +6,11 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
+from fondant.pipeline.runner import DockerRunner
+
 import pipeline_eval
 import pipeline_index
 import weaviate
-from fondant.pipeline.runner import DockerRunner
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +37,34 @@ def create_directory_if_not_exists(path):
     p_base_path.mkdir(parents=True, exist_ok=True)
     return str(p_base_path)
 
+# Store pipeline results
+def store_results(  # noqa: PLR0913
+    rag_results,
+    shared_args,
+    indexing_args,
+    evaluation_args,
+    index_pipeline_datetime,
+    eval_pipeline_datetime,
+):
+    pipeline_dir = shared_args["pipeline_dir"]
+    pipeline_name = "evaluation-pipeline"
+    component_name = "aggregate_eval_results"
+
+    results_dict = {}
+    results_dict["shared_args"] = shared_args
+    results_dict["indexing_datetime"] = index_pipeline_datetime
+    results_dict["indexing_args"] = indexing_args
+    results_dict["evaluation_args"] = evaluation_args
+    results_dict["evaluation_datetime"] = eval_pipeline_datetime
+    results_dict["agg_metrics"] = read_latest_data(
+        base_path=pipeline_dir,
+        pipeline_name=pipeline_name,
+        component_name=component_name,
+    )
+
+    rag_results.append(results_dict)
+
+    return rag_results
 
 # Read latest chosen component
 def read_latest_data(base_path: str, pipeline_name: str, component_name: str):
@@ -100,6 +129,28 @@ def extract_timestamp(folder_name):
     # Convert the timestamp string to a datetime object
     return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
 
+# Output pipelines evaluations results dataframe
+def output_results(results):
+    flat_results = []
+
+    for entry in results:
+        flat_entry = entry.copy()
+
+        for key, value in entry.items():
+            if isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    flat_entry[sub_key] = sub_value
+                del flat_entry[key]
+
+            elif isinstance(value, pd.DataFrame):
+                for sub_key, sub_value in zip(value["metric"], value["score"]):
+                    flat_entry[sub_key] = sub_value
+                del flat_entry[key]
+
+        flat_results.append(flat_entry)
+
+    return pd.DataFrame(flat_results)
+
 
 # Run parameters search and store results
 def run_parameters_search(  # noqa: PLR0913
@@ -125,6 +176,7 @@ def run_parameters_search(  # noqa: PLR0913
         start=1,
     ):
         index_config_class_name = f"IndexConfig{i}"
+        index_pipeline_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logging.info(
             f"Running indexing for {index_config_class_name} \
             with chunk_size={chunk_size}, chunk_overlap={chunk_overlap}\
@@ -134,6 +186,7 @@ def run_parameters_search(  # noqa: PLR0913
         # Store Indexing configuration
         index_dict = {}
         index_dict["index_name"] = index_config_class_name
+        index_dict["indexing_datetime"] = index_pipeline_datetime
         index_dict["chunk_size"] = chunk_size
         index_dict["chunk_overlap"] = chunk_overlap
         index_dict["embed_model"] = embed_model
@@ -162,6 +215,7 @@ def run_parameters_search(  # noqa: PLR0913
         start=1,
     ):
         rag_config_name = f"RAGConfig{i}"
+        eval_pipeline_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logging.info(
             f"Running evaluation for {rag_config_name} \
             with {index_dict['index_name']} and {top_k} retrieved chunks",
@@ -170,6 +224,7 @@ def run_parameters_search(  # noqa: PLR0913
         # Store RAG pipeline configuration
         results_dict = {}
         results_dict["rag_config_name"] = rag_config_name
+        results_dict["evaluation_datetime"] = eval_pipeline_datetime
         results_dict.update(index_dict)
         results_dict["top_k"] = top_k
 
@@ -194,6 +249,9 @@ def run_parameters_search(  # noqa: PLR0913
             pipeline_name="evaluation-pipeline",
             component_name="aggregate_eval_results",
         )
+        # Add fixed arguments
+        results_dict.update(fixed_args,fixed_index_args, fixed_eval_args)
+        
         parameters_search_results.append(results_dict)
 
     return parameters_search_results
@@ -209,17 +267,3 @@ def run_indexing_pipeline(runner, index_pipeline, weaviate_url, weaviate_class_n
 # eval pipeline runner
 def run_evaluation_pipeline(runner, eval_pipeline, extra_volumes):
     runner.run(input=eval_pipeline, extra_volumes=extra_volumes)
-
-
-# output evaluation results
-def read_evaluated_pipelines(parameters_search_results):
-    for results in parameters_search_results:
-        print("Results:")
-        for key, value in results.items():
-            if isinstance(value, pd.DataFrame):
-                # If the value is a DataFrame, display it nicely
-                print(f"  {key}:")
-                print(value)
-            else:
-                print(f"  {key}: {value}")
-        print("\n" + "=" * 30 + "\n")
