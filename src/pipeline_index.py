@@ -3,33 +3,31 @@ import pyarrow as pa
 from fondant.pipeline import Pipeline
 
 
-def create_pipeline(  # noqa: PLR0913
-    pipeline_dir: str = "./data-dir",
+def create_pipeline(
+    *,
+    base_path: str = "s3://sagemaker-fondant-artifacts-robbe/data",
+    n_rows_to_load: int = 1000,
+    weaviate_url: str = "http://host.docker.internal:8080",
+    weaviate_class: str = "Pipeline1",
+    weaviate_overwrite: bool = True,
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
     embed_api_key: dict = {},
-    weaviate_url: str = "http://host.docker.internal:8080",
-    weaviate_class_name: str = "Pipeline1",
-    overwrite: bool = True,
-    # indexing args
-    hf_dataset_name: str = "wikitext@~parquet",
-    data_column_name: str = "text",
-    n_rows_to_load: int = 1000,
     chunk_size: int = 512,
     chunk_overlap: int = 32,
 ):
+    """Create a Fondant pipeline based on the provided arguments."""
     indexing_pipeline = Pipeline(
         name="indexing-pipeline",
         description="Pipeline to prepare and process data for building a RAG solution",
-        base_path=pipeline_dir,  # The demo pipelines uses a local directory to store the data.
+        base_path=base_path,
     )
 
     text = indexing_pipeline.read(
         "load_from_hf_hub",
         arguments={
             # Add arguments
-            "dataset_name": hf_dataset_name,
-            "column_name_mapping": {data_column_name: "text"},
+            "dataset_name": "wikitext@~parquet",
             "n_rows_to_load": n_rows_to_load,
         },
         produces={
@@ -58,9 +56,10 @@ def create_pipeline(  # noqa: PLR0913
         "index_weaviate",
         arguments={
             "weaviate_url": weaviate_url,
-            "class_name": weaviate_class_name,
-            "overwrite": overwrite,
+            "class_name": weaviate_class,
+            "overwrite": weaviate_overwrite,
         },
+        cache=False,
     )
 
     return indexing_pipeline

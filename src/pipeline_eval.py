@@ -1,41 +1,40 @@
 """Fondant pipeline to evaluate a RAG pipeline."""
+
 import pyarrow as pa
 from fondant.pipeline import Pipeline
 
 
-def create_pipeline(  # noqa: PLR0913
-    pipeline_dir: str = "./data-dir",
+def create_pipeline(
+    *,
+    base_path: str = "./data-dir",
+    weaviate_url="http://host.docker.internal:8080",
+    weaviate_class: str = "Pipeline1",
+    csv_dataset_uri: str = "/data/wikitext_1000_q.csv",
+    csv_separator: str = ";",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
     embed_api_key: dict = {},
-    weaviate_url="http://host.docker.internal:8080",
-    weaviate_class_name: str = "Pipeline1",
-    # evaluation args
-    csv_dataset_uri: str = "/data/wikitext_1000_q.csv",
-    csv_column_separator: str = ";",
-    question_column_name: str = "question",
-    top_k: int = 3,
-    module: str = "langchain.llms",
-    llm_name: str = "OpenAI",
-    llm_kwargs: dict = {"openai_api_key": ""},  # TODO if use Fondant CLI
-    metrics: list = ["context_precision", "context_relevancy"],
+    retrieval_top_k: int = 3,
+    evaluation_module: str = "langchain.llms",
+    evaluation_llm: str = "OpenAI",
+    evaluation_llm_kwargs: dict = {},
+    evaluation_metrics: list = ["context_precision", "context_relevancy"],
 ):
+    """Create a Fondant pipeline based on the provided arguments."""
     evaluation_pipeline = Pipeline(
         name="evaluation-pipeline",
-        description="Pipeline to evaluate \
-        a RAG solution",
-        base_path=pipeline_dir,
+        description="Pipeline to evaluate a RAG solution",
+        base_path=base_path,
     )
 
     load_from_csv = evaluation_pipeline.read(
         "load_from_csv",
         arguments={
             "dataset_uri": csv_dataset_uri,
-            "column_separator": csv_column_separator,
-            "column_name_mapping": {question_column_name: "text"},
+            "column_separator": csv_separator,
         },
         produces={
-            "text": pa.string(),
+            "question": pa.string(),
         },
     )
 
@@ -46,29 +45,34 @@ def create_pipeline(  # noqa: PLR0913
             "model": embed_model,
             "api_keys": embed_api_key,
         },
+        consumes={
+            "text": "question",
+        },
     )
 
     retrieve_chunks = embed_text_op.apply(
         "retrieve_from_weaviate",
         arguments={
             "weaviate_url": weaviate_url,
-            "class_name": weaviate_class_name,
-            "top_k": top_k,
+            "class_name": weaviate_class,
+            "top_k": retrieval_top_k,
         },
+        cache=False,
     )
 
     retriever_eval = retrieve_chunks.apply(
         "evaluate_ragas",
         arguments={
-            "module": module,
-            "llm_name": llm_name,
-            "llm_kwargs": llm_kwargs,
+            "module": evaluation_module,
+            "llm_name": evaluation_llm,
+            "llm_kwargs": evaluation_llm_kwargs,
         },
-        produces={metric: pa.float32() for metric in metrics},
+        produces={metric: pa.float32() for metric in evaluation_metrics},
     )
 
     retriever_eval.apply(
         "components/aggregate_eval_results",
+        consumes={metric: pa.float32() for metric in evaluation_metrics},
     )
 
     return evaluation_pipeline
