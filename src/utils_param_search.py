@@ -2,11 +2,10 @@ import itertools
 import logging
 from datetime import datetime
 
-from fondant.pipeline.runner import DockerRunner
-
 import pipeline_eval
 import pipeline_index
 import weaviate
+from fondant.pipeline.runner import DockerRunner
 from utils import read_latest_data
 
 
