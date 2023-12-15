@@ -57,7 +57,7 @@ def create_pipeline(
             "class_name": weaviate_class,
             "top_k": retrieval_top_k,
         },
-        cache=False
+        cache=False,
     )
 
     retriever_eval = retrieve_chunks.apply(
