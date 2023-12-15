@@ -8,11 +8,10 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from fondant.pipeline.runner import DockerRunner
-
 import pipeline_eval
 import pipeline_index
 import weaviate
+from fondant.pipeline.runner import DockerRunner
 
 COMPONENT_NAME = "aggregate_eval_results"
 
@@ -176,6 +175,7 @@ def output_results(results):
         flat_results.append(flat_entry)
 
     return pd.DataFrame(flat_results)
+
 
 def run_parameters_search(  # noqa: PLR0913
     extra_volumes,
