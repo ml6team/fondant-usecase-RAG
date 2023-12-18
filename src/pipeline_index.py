@@ -1,6 +1,6 @@
 """Fondant pipeline to index a RAG system."""
 import pyarrow as pa
-from fondant.pipeline import Pipeline
+from fondant.pipeline import Pipeline, Resources
 
 
 def create_pipeline(
@@ -15,6 +15,8 @@ def create_pipeline(
     embed_api_key: dict = {},
     chunk_size: int = 512,
     chunk_overlap: int = 32,
+    number_of_accelerators=None,
+    accelerator_name=None,
 ):
     """Create a Fondant pipeline based on the provided arguments."""
     indexing_pipeline = Pipeline(
@@ -50,6 +52,10 @@ def create_pipeline(
             "model": embed_model,
             "api_keys": embed_api_key,
         },
+        resources = Resources(
+            accelerator_number=number_of_accelerators,
+            accelerator_name=accelerator_name,
+        )
     )
 
     embeddings.write(

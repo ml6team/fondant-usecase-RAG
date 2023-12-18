@@ -1,7 +1,7 @@
 """Fondant pipeline to evaluate a RAG pipeline."""
 
 import pyarrow as pa
-from fondant.pipeline import Pipeline
+from fondant.pipeline import Pipeline, Resources
 
 
 def create_pipeline(
@@ -48,6 +48,10 @@ def create_pipeline(
         consumes={
             "text": "question",
         },
+        resources = Resources(
+            accelerator_number=number_of_accelerators,
+            accelerator_name=accelerator_name,
+        )
     )
 
     retrieve_chunks = embed_text_op.apply(
