@@ -37,7 +37,7 @@ informed choices on which parameters to try.
 > ⚠️ **Prerequisites:**
 >
 > - A Python version between 3.8 and 3.10 installed on your system.
-> - Docker and docker compose installed and configured on your system.
+> - Docker and docker compose installed and configured on your system. More info [here](https://fondant.ai/en/latest/guides/installation/#docker-installation).
 > - A GPU is recommended to run the model-based components of the pipeline.
 
 ### Cloning the repository
