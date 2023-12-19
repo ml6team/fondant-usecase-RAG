@@ -154,8 +154,8 @@ def extract_timestamp(folder_name):
     return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
 
 
-# Output pipelines evaluations results dataframe
-def output_results(results):
+# Collect pipeline evaluations in results dataframe
+def get_results(results):
     flat_results = []
 
     for entry in results:
@@ -177,7 +177,7 @@ def output_results(results):
     return pd.DataFrame(flat_results)
 
 
-def run_parameters_search(  # noqa: PLR0913
+def run_parameter_search(  # noqa: PLR0913
     extra_volumes,
     fixed_args,
     fixed_index_args,
@@ -233,7 +233,7 @@ def run_parameters_search(  # noqa: PLR0913
             weaviate_class=index_config_class_name,
         )
 
-    parameters_search_results = []
+    parameter_search_results = []
     for i, (index_dict, top_k) in enumerate(
         itertools.product(indexes, top_ks),
         start=1,
@@ -277,9 +277,9 @@ def run_parameters_search(  # noqa: PLR0913
         results_dict.update(fixed_index_args)
         results_dict.update(fixed_eval_args)
 
-        parameters_search_results.append(results_dict)
+        parameter_search_results.append(results_dict)
 
-    return parameters_search_results
+    return parameter_search_results
 
 
 # index pipeline runner
