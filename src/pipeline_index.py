@@ -52,10 +52,10 @@ def create_pipeline(
             "model": embed_model,
             "api_keys": embed_api_key,
         },
-        resources = Resources(
+        resources=Resources(
             accelerator_number=number_of_accelerators,
             accelerator_name=accelerator_name,
-        )
+        ),
     )
 
     embeddings.write(
