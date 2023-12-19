@@ -17,7 +17,7 @@ def create_pipeline(
     retrieval_top_k: int = 3,
     evaluation_module: str = "langchain.llms",
     evaluation_llm: str = "OpenAI",
-    evaluation_llm_kwargs: dict = {},
+    evaluation_llm_kwargs: dict = {"model_name": "gpt-3.5-turbo"},
     evaluation_metrics: list = ["context_precision", "context_relevancy"],
 ):
     """Create a Fondant pipeline based on the provided arguments."""
