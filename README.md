@@ -1,4 +1,4 @@
-# RAG (Retrieval Augmented Generation) Ingestion Pipeline Tuning
+# RAG Data Pipeline Tuning
 
 <p align="center">
     <a href="https://github.com/ml6team/fondant">
