@@ -70,5 +70,5 @@ fondant --help
 
 There are two options to run the pipeline:
 
-- **Via python files and the Fondant CLI:** how you should run Fondant in production
-- **Via a Jupyter notebook**: ideal to learn about Fondant
+- [**Via python files and the Fondant CLI:**](https://fondant.ai/en/latest/pipeline/#running-a-pipeline) how you should run Fondant in production
+- [**Via a Jupyter notebook**](./src/pipeline.ipynb): ideal to learn about Fondant
