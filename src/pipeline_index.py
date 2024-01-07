@@ -5,7 +5,7 @@ from fondant.pipeline import Pipeline
 
 def create_pipeline(
     *,
-    base_path: str = "./data-dir",
+    base_path: str = "./data",
     n_rows_to_load: int = 1000,
     weaviate_url: str = "http://host.docker.internal:8080",
     weaviate_class: str = "Pipeline1",

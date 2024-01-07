@@ -6,11 +6,12 @@ from fondant.pipeline import Pipeline
 
 def create_pipeline(
     *,
-    base_path: str = "./data-dir",
+    base_path: str = "./data",
     weaviate_url="http://host.docker.internal:8080",
     weaviate_class: str = "Pipeline1",
-    csv_dataset_uri: str = "/data/wikitext_1000_q.csv",
-    csv_separator: str = ";",
+    evaluation_set_path = "./evaluation_sets",
+    evaluation_set_filename = "wikitext_1000_q.csv",
+    evaluation_set_separator: str = ";",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
     embed_api_key: dict = {},
@@ -30,8 +31,8 @@ def create_pipeline(
     load_from_csv = evaluation_pipeline.read(
         "load_from_csv",
         arguments={
-            "dataset_uri": csv_dataset_uri,
-            "column_separator": csv_separator,
+            "dataset_uri": '/evaldata/' + evaluation_set_filename, # mounted dir from within docker as extra_volumes
+            "column_separator": evaluation_set_separator,
         },
         produces={
             "question": pa.string(),
