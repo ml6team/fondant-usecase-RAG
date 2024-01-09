@@ -1,4 +1,4 @@
-# RAG (Retrieval Augmented Generation) Ingestion Pipeline Tuning
+# RAG Data Pipeline Tuning
 
 <p align="center">
     <a href="https://github.com/ml6team/fondant">
@@ -37,7 +37,7 @@ informed choices on which parameters to try.
 > ⚠️ **Prerequisites:**
 >
 > - A Python version between 3.8 and 3.10 installed on your system.
-> - Docker and docker compose installed and configured on your system.
+> - Docker and docker compose installed and configured on your system. More info [here](https://fondant.ai/en/latest/guides/installation/#docker-installation).
 > - A GPU is recommended to run the model-based components of the pipeline.
 
 ### Cloning the repository
@@ -70,5 +70,5 @@ fondant --help
 
 There are two options to run the pipeline:
 
-- [Via python files and the Fondant CLI](./src/README.md): how you should run Fondant in production
-- [Via a Jupyter notebook](./src/pipeline.ipynb): ideal to learn about Fondant
+- [**Via python files and the Fondant CLI:**](https://fondant.ai/en/latest/pipeline/#running-a-pipeline) how you should run Fondant in production
+- [**Via a Jupyter notebook**](./src/pipeline.ipynb): ideal to learn about Fondant
