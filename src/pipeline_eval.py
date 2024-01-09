@@ -9,8 +9,8 @@ def create_pipeline(
     base_path: str = "./data",
     weaviate_url="http://host.docker.internal:8080",
     weaviate_class: str = "Pipeline1",
-    evaluation_set_path = "./evaluation_sets",
-    evaluation_set_filename = "wikitext_1000_q.csv",
+    evaluation_set_path="./evaluation_sets",
+    evaluation_set_filename="wikitext_1000_q.csv",
     evaluation_set_separator: str = ";",
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
@@ -33,7 +33,8 @@ def create_pipeline(
     load_from_csv = evaluation_pipeline.read(
         "load_from_csv",
         arguments={
-            "dataset_uri": '/evaldata/' + evaluation_set_filename, # mounted dir from within docker as extra_volumes
+            "dataset_uri": "/evaldata/"
+            + evaluation_set_filename,  # mounted dir from within docker as extra_volumes
             "column_separator": evaluation_set_separator,
         },
         produces={
