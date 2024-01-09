@@ -1,19 +1,14 @@
-import glob
-import itertools
-import json
 import logging
 import os
 import socket
 from datetime import datetime
+from itertools import product
 from pathlib import Path
 
 import pandas as pd
 import pipeline_eval
 import pipeline_index
-import weaviate
 from fondant.pipeline.runner import DockerRunner
-
-COMPONENT_NAME = "aggregate_eval_results"
 
 
 def get_host_ip():
@@ -38,102 +33,15 @@ def create_directory_if_not_exists(path):
     return str(p_base_path)
 
 
-def store_results(pipeline_name, **kwargs):
-    base_path = kwargs.pop("base_path")
-
-    del kwargs["weaviate_url"]
-    del kwargs["embed_api_key"]  # API key
-
-    run_dir = get_latest_run(base_path, pipeline_name)
-    param_file = os.path.join(run_dir, "params.json")
-    with open(param_file, "w") as f:
-        json.dump(kwargs, f)
+def cartesian_product(input_dict):
+    return (
+        dict(zip(input_dict.keys(), values)) for values in product(*input_dict.values())
+    )
 
 
-def read_results(
-    pipeline_name,
-    base_path,
-):
-    runs = get_runs(base_path, pipeline_name)
-    dfs = []
-    for run in runs:
-        component_path = os.path.join(base_path, pipeline_name, run, COMPONENT_NAME)
-        params_file = os.path.join(component_path, "params.json")
-        if not os.path.exists(params_file):
-            continue
-        with open(params_file) as f:
-            params = json.load(f)
-
-        # Read params
-        params_df = pd.DataFrame(params, index=[0]).reset_index(drop=True)
-
-        # Read metrics
-        parquet_path = glob.glob(os.path.join(component_path, "*.parquet"))
-        metrics_df = pd.read_parquet(parquet_path).reset_index(drop=True)
-        metrics_df = pd.DataFrame(
-            dict(zip(metrics_df["metric"], metrics_df["score"])),
-            index=[0],
-        )
-
-        # Join params and metrics
-        results_df = params_df.join(metrics_df)
-
-        dfs.append(results_df)
-
-    return pd.concat(dfs).reset_index(drop=True)
-
-
-def get_runs(base_path: str, pipeline_name: str):
-    # Specify the path to the 'data' directory
-    data_directory = f"{base_path}/{pipeline_name}"
-
-    # Get a list of all subdirectories in the 'data' directory
-    subdirectories = [
-        d
-        for d in os.listdir(data_directory)
-        if os.path.isdir(os.path.join(data_directory, d))
-    ]
-
-    # keep pipeline directories
-    valid_entries = [
-        entry for entry in subdirectories if entry.startswith(pipeline_name)
-    ]
-    # keep pipeline folders containing a parquet file in the component folder
-
-    return [
-        folder
-        for folder in valid_entries
-        if has_parquet_file(data_directory, folder, COMPONENT_NAME)
-    ]
-
-
-def get_latest_run(base_path: str, pipeline_name: str):
-    runs = get_runs(base_path, pipeline_name)
-
-    # keep the latest folder
-    latest_run = sorted(runs, key=extract_timestamp, reverse=True)[0]
-    return os.path.join(base_path, pipeline_name, latest_run, COMPONENT_NAME)
-
-
-def read_latest_data(base_path: str, pipeline_name: str):
-    component_folder = get_latest_run(base_path, pipeline_name)
-
-    # If a valid folder is found, proceed to read all Parquet files in the component folder
-    if component_folder:
-        # Get a list of all Parquet files in the component folder
-        parquet_files = [
-            f for f in os.listdir(component_folder) if f.endswith(".parquet")
-        ]
-
-        if parquet_files:
-            # Read all Parquet files and concatenate them into a single DataFrame
-            dfs = [
-                pd.read_parquet(os.path.join(component_folder, file))
-                for file in parquet_files
-            ]
-            return pd.concat(dfs, ignore_index=True)
-        return None
-    return None
+def extract_timestamp(folder_name):
+    timestamp_str = folder_name.split("-")[-1]
+    return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
 
 
 def has_parquet_file(data_directory, entry, component_name):
@@ -147,148 +55,263 @@ def has_parquet_file(data_directory, entry, component_name):
     return bool(parquet_files)
 
 
-def extract_timestamp(folder_name):
-    # Extract the timestamp part from the folder name
-    timestamp_str = folder_name.split("-")[-1]
-    # Convert the timestamp string to a datetime object
-    return datetime.strptime(timestamp_str, "%Y%m%d%H%M%S")
-
-
-# Collect pipeline evaluations in results dataframe
-def get_results(results):
-    flat_results = []
-
-    for entry in results:
-        flat_entry = entry.copy()
-
-        for key, value in entry.items():
-            if isinstance(value, dict):
-                for sub_key, sub_value in value.items():
-                    flat_entry[sub_key] = sub_value
-                del flat_entry[key]
-
-            elif isinstance(value, pd.DataFrame):
-                for sub_key, sub_value in zip(value["metric"], value["score"]):
-                    flat_entry[sub_key] = sub_value
-                del flat_entry[key]
-
-        flat_results.append(flat_entry)
-
-    return pd.DataFrame(flat_results)
-
-
-def run_parameter_search(  # noqa: PLR0913
-    extra_volumes,
-    fixed_args,
-    fixed_index_args,
-    fixed_eval_args,
-    chunk_sizes,
-    chunk_overlaps,
-    embed_models,
-    top_ks,
+def get_metrics_latest_run(
+    base_path,
+    pipeline_name="evaluation-pipeline",
+    component_name="aggregate_eval_results",
 ):
-    # Define pipeline runner
-    runner = DockerRunner()
+    data_directory = f"{base_path}/{pipeline_name}"
 
-    # Results dictionary to store results for each iteration
-    results_dict = {}
+    # keep data folders that belong to pipeline and contain parquet file
+    valid_entries = [
+        d
+        for d in os.listdir(data_directory)
+        if os.path.isdir(os.path.join(data_directory, d))
+        and d.startswith(pipeline_name)
+        and has_parquet_file(data_directory, d, component_name)
+    ]
 
-    # Perform grid search
-    indexes = []
-    for i, (chunk_size, chunk_overlap, embed_model) in enumerate(
-        itertools.product(chunk_sizes, chunk_overlaps, embed_models),
-        start=1,
+    # keep the latest folder
+    latest_run = sorted(valid_entries, key=extract_timestamp, reverse=True)[0]
+
+    # read all Parquet files and concatenate them into a single DataFrame
+    component_folder = os.path.join(data_directory, latest_run, component_name)
+    parquet_files = [f for f in os.listdir(component_folder) if f.endswith(".parquet")]
+    dfs = [
+        pd.read_parquet(os.path.join(component_folder, file)) for file in parquet_files
+    ]
+
+    return pd.concat(dfs, ignore_index=True).set_index("metric")["score"].to_dict()
+
+
+def add_embed_model_numerical_column(df):
+    df["embed_model_numerical"] = pd.factorize(df["embed_model"])[0] + 1
+    return df
+
+
+def show_legend_embed_models(df):
+    columns_to_show = ["embed_model", "embed_model_numerical"]
+    df = df[columns_to_show].drop_duplicates().set_index("embed_model_numerical")
+    df.index.name = ""
+    return df
+
+
+class ParameterSearch:
+    """RAG parameter search."""
+
+    def __init__(  # noqa: PLR0913pre
+        self,
+        searchable_index_params,
+        searchable_eval_params,
+        searchable_shared_params,
+        index_args,
+        eval_args,
+        shared_args,
+        search_method="progressive_search",
+        target_metric="context_precision",
     ):
-        index_config_class_name = f"IndexConfig{i}"
-        index_pipeline_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        logging.info(
-            f"Running indexing for {index_config_class_name} \
-            with chunk_size={chunk_size}, chunk_overlap={chunk_overlap}\
-            , embed_model={embed_model}",
-        )
+        self.search_method = search_method
+        self.target_metric = target_metric
+        self.searchable_index_params = searchable_index_params
+        self.searchable_shared_params = searchable_shared_params
+        self.searchable_eval_params = searchable_eval_params
+        self.shared_args = shared_args
+        self.searchable_params = {
+            **searchable_index_params,
+            **searchable_eval_params,
+            **searchable_shared_params,
+        }
+        self.index_args = index_args
+        self.search_method = search_method
+        self.eval_args = eval_args
 
-        # Store Indexing configuration
-        index_dict = {}
-        index_dict["index_name"] = index_config_class_name
-        index_dict["indexing_datetime"] = index_pipeline_datetime
-        index_dict["chunk_size"] = chunk_size
-        index_dict["chunk_overlap"] = chunk_overlap
-        index_dict["embed_model"] = embed_model
-        indexes.append(index_dict)
+        # create directory for pipeline output data
+        self.base_path = create_directory_if_not_exists(shared_args["base_path"])
 
-        # Create and Run the indexing pipeline
+        # mount directory of pipeline output data from docker
+        self.extra_volumes = [
+            str(os.path.join(os.path.abspath(eval_args["evaluation_set_path"])))
+            + ":/evaldata",
+        ]
+
+        # define pipeline runner
+        self.runner = DockerRunner()
+
+        # add url to shared arguments to access Weaviate from within Docker
+        self.shared_args["weaviate_url"] = f"http://{get_host_ip()}:8080"  # IP address
+
+        # list of dicts to store all params & results
+        self.results = []
+
+    def run(self):
+        runcount = 0
+
+        while True:
+            configs = self.create_configs(runcount)
+
+            if configs is None:
+                break
+
+            # create configs
+            indexing_config, evaluation_config = configs
+
+            # create pipeline objects
+            indexing_pipeline, evaluation_pipeline = self.create_pipelines(
+                indexing_config,
+                evaluation_config,
+            )
+
+            # run indexing pipeline
+            self.run_indexing_pipeline(runcount, indexing_config, indexing_pipeline)
+
+            # run evaluation pipeline
+            self.run_evaluation_pipeline(
+                runcount,
+                evaluation_config,
+                evaluation_pipeline,
+            )
+
+            # read metrics from pipeline output
+            metrics = {}
+            metrics = get_metrics_latest_run(self.base_path)
+
+            metadata = {
+                "run_number": runcount,
+                "date_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+
+            # collect results
+            self.results.append(
+                {**metadata, **indexing_config, **evaluation_config, **metrics},
+            )
+
+            runcount += 1
+
+        return pd.DataFrame(self.results)
+
+    def create_configs(self, runcount):
+        if self.search_method == "grid_search":
+            # all possible combinations of parameters
+            all_combinations = list(cartesian_product(self.searchable_params))
+
+            # when all combinations have been tried, stop searching
+            if runcount > len(all_combinations) - 1:
+                return None
+
+            # create base config for indexing pipeline
+            pipeline_config = all_combinations[runcount]
+
+        elif self.search_method == "progressive_search":
+            # initialize pipeline config with middle values for each parameter
+            pipeline_config = {}
+            for key, value in self.searchable_params.items():
+                middle_index = int((len(value) - 1) / 2)
+                pipeline_config.update({key: value[middle_index]})
+
+            # make a list of variations to try
+            keys_to_try = []
+            values_to_try = []
+            for key, values in self.searchable_params.items():
+                if len(values) > 1:  # only variations to try when more than one option
+                    for option in values:
+                        if not (
+                            key in pipeline_config and option == pipeline_config[key]
+                        ):  # should not be default option
+                            keys_to_try.append(key)
+                            values_to_try.append(option)
+            variations_to_try = [
+                {keys_to_try[i]: values_to_try[i]} for i in range(len(keys_to_try))
+            ]
+
+            # if there are no variations to try, just schedule one run
+            if len(variations_to_try) == 0:
+                variations_to_try = list(self.searchable_params.items())[0]
+
+            # when all variations have been tried, stop searching
+            if runcount > len(keys_to_try) - 1:
+                return None
+
+            # update with best performing params
+            results_ext = pd.DataFrame(self.results)
+            results_ext["parameter_tested"] = keys_to_try[:runcount]
+
+            print(results_ext)
+
+            best_config = {}
+            if len(results_ext) > 0:
+                best_config = (
+                    results_ext.groupby("parameter_tested", sort=False)
+                    .idxmax()[self.target_metric]
+                    .to_list()
+                )
+                best_config = {
+                    keys_to_try[vtw]: values_to_try[vtw] for vtw in best_config
+                }
+                logging.info(f"Best configuration so far: {best_config}")
+
+            pipeline_config.update(best_config)
+            logging.info(f"Trying: {variations_to_try[runcount]}")
+            pipeline_config.update(variations_to_try[runcount])
+
+        else:
+            msg = "Please provide a valid search method"
+            raise ValueError(msg)
+
+        # filter out indexing & evaluation parameters
+        indexing_config = {
+            key: pipeline_config[key]
+            for key in {**self.searchable_index_params, **self.searchable_shared_params}
+        }
+        evaluation_config = {
+            key: pipeline_config[key]
+            for key in {**self.searchable_eval_params, **self.searchable_shared_params}
+        }
+
+        # More shared parameters
+        indexing_config["weaviate_class"] = evaluation_config[
+            "weaviate_class"
+        ] = f"Run{runcount}"
+        indexing_config["embed_model_provider"] = evaluation_config[
+            "embed_model_provider"
+        ] = indexing_config["embed_model"][0]
+        indexing_config["embed_model"] = evaluation_config[
+            "embed_model"
+        ] = indexing_config["embed_model"][1]
+
+        return indexing_config, evaluation_config
+
+    def create_pipelines(self, indexing_config, evaluation_config):
+        # create indexing pipeline
+
         indexing_pipeline = pipeline_index.create_pipeline(
-            **fixed_args,
-            **fixed_index_args,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            embed_model_provider=embed_model[0],
-            embed_model=embed_model[1],
-            weaviate_class=index_config_class_name,
-        )
-        run_indexing_pipeline(
-            runner=runner,
-            index_pipeline=indexing_pipeline,
-            weaviate_url=fixed_args["weaviate_url"],
-            weaviate_class=index_config_class_name,
+            **self.shared_args,
+            **self.index_args,
+            **indexing_config,
         )
 
-    parameter_search_results = []
-    for i, (index_dict, top_k) in enumerate(
-        itertools.product(indexes, top_ks),
-        start=1,
-    ):
-        rag_config_name = f"RAGConfig{i}"
-        eval_pipeline_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        logging.info(
-            f"Running evaluation for {rag_config_name} \
-            with {index_dict['index_name']} and {top_k} retrieved chunks",
-        )
-
-        # Store RAG pipeline configuration
-        results_dict = {}
-        results_dict["rag_config_name"] = rag_config_name
-        results_dict["evaluation_datetime"] = eval_pipeline_datetime
-        results_dict.update(index_dict)
-        results_dict["top_k"] = top_k
-
-        # Create and Run the evaluation pipeline
+        # create evaluation pipeline
         evaluation_pipeline = pipeline_eval.create_pipeline(
-            **fixed_args,
-            **fixed_eval_args,
-            embed_model_provider=index_dict["embed_model"][0],
-            embed_model=index_dict["embed_model"][1],
-            weaviate_class=index_dict["index_name"],
-            retrieval_top_k=top_k,
-        )
-        run_evaluation_pipeline(
-            runner=runner,
-            eval_pipeline=evaluation_pipeline,
-            extra_volumes=extra_volumes,
+            **self.shared_args,
+            **self.eval_args,
+            **evaluation_config,
         )
 
-        # Save the evaluation results in the dictionary
-        results_dict[f"agg_results_{rag_config_name}"] = read_latest_data(
-            base_path=fixed_args["base_path"],
-            pipeline_name="evaluation-pipeline",
+        print(f'RUN # {indexing_config["weaviate_class"]}')
+        print("{**self.shared_args, **self.index_args, **indexing_config}")
+        print({**self.shared_args, **self.index_args, **indexing_config})
+        print("{**self.shared_args, **self.eval_args, **evaluation_config}")
+        print({**self.shared_args, **self.eval_args, **evaluation_config})
+
+        return indexing_pipeline, evaluation_pipeline
+
+    def run_indexing_pipeline(self, runcount, indexing_config, indexing_pipeline):
+        logging.info(
+            f"Starting indexing pipeline of run #{runcount} with {indexing_config}",
         )
-        # Add fixed arguments
-        results_dict.update(fixed_args)
-        results_dict.update(fixed_index_args)
-        results_dict.update(fixed_eval_args)
+        self.runner.run(indexing_pipeline)
 
-        parameter_search_results.append(results_dict)
-
-    return parameter_search_results
-
-
-# index pipeline runner
-def run_indexing_pipeline(runner, index_pipeline, weaviate_url, weaviate_class):
-    runner.run(index_pipeline)
-    docker_weaviate_client = weaviate.Client(weaviate_url)
-    return docker_weaviate_client.schema.get(weaviate_class)
-
-
-# eval pipeline runner
-def run_evaluation_pipeline(runner, eval_pipeline, extra_volumes):
-    runner.run(input=eval_pipeline, extra_volumes=extra_volumes)
+    def run_evaluation_pipeline(self, runcount, evaluation_config, evaluation_pipeline):
+        logging.info(
+            f"Starting evaluation pipeline of run #{runcount} with {evaluation_config}",
+        )
+        self.runner.run(input=evaluation_pipeline, extra_volumes=self.extra_volumes)
