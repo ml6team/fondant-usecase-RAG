@@ -5,9 +5,9 @@ from fondant.pipeline import Pipeline, Resources
 
 def create_pipeline(
     *,
+    weaviate_url: str,
     base_path: str = "./data-dir",
     n_rows_to_load: int = 1000,
-    weaviate_url: str = "http://host.docker.internal:8080",
     weaviate_class: str = "Pipeline1",
     weaviate_overwrite: bool = True,
     embed_model_provider: str = "huggingface",

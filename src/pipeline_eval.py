@@ -6,8 +6,8 @@ from fondant.pipeline import Pipeline, Resources
 
 def create_pipeline(
     *,
+    weaviate_url: str,
     base_path: str = "./data-dir",
-    weaviate_url="http://host.docker.internal:8080",
     weaviate_class: str = "Pipeline1",
     csv_dataset_uri: str = "/data/wikitext_1000_q.csv",
     csv_separator: str = ";",
