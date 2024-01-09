@@ -56,7 +56,7 @@ def create_pipeline(
             accelerator_number=number_of_accelerators,
             accelerator_name=accelerator_name,
         ),
-        cluster_type="local",
+        cluster_type="local" if number_of_accelerators is not None else "default",
     )
 
     embeddings.write(
