@@ -1,13 +1,13 @@
 """Fondant pipeline to index a RAG system."""
 import pyarrow as pa
-from fondant.pipeline import Pipeline
+from fondant.pipeline import Pipeline, Resources
 
 
 def create_pipeline(
     *,
+    weaviate_url: str,
     base_path: str = "./data",
     n_rows_to_load: int = 1000,
-    weaviate_url: str = "http://host.docker.internal:8080",
     weaviate_class: str = "Pipeline1",
     weaviate_overwrite: bool = True,
     embed_model_provider: str = "huggingface",
@@ -15,6 +15,8 @@ def create_pipeline(
     embed_api_key: dict = {},
     chunk_size: int = 512,
     chunk_overlap: int = 32,
+    number_of_accelerators=None,
+    accelerator_name=None,
 ):
     """Create a Fondant pipeline based on the provided arguments."""
     indexing_pipeline = Pipeline(
@@ -50,6 +52,11 @@ def create_pipeline(
             "model": embed_model,
             "api_keys": embed_api_key,
         },
+        resources=Resources(
+            accelerator_number=number_of_accelerators,
+            accelerator_name=accelerator_name,
+        ),
+        cluster_type="local" if number_of_accelerators is not None else "default",
     )
 
     embeddings.write(
