@@ -203,7 +203,7 @@ class ParameterSearch:
 
             # if there are no variations to try, just schedule one run
             if len(variations_to_try) == 0:
-                variations_to_try = [{next(iter(pipeline_config.items()))[0] : next(iter(pipeline_config.items()))[1]}]
+                variations_to_try = [{list(pipeline_config.keys())[0]: list(pipeline_config.values())[0]}]
 
             # when all variations have been tried, stop searching
             if runcount > len(variations_to_try) - 1:
