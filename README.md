@@ -1,4 +1,4 @@
-# RAG Data Pipeline Tuning
+# Retrieval Augmented Generation (RAG) Tuning
 
 <p align="center">
     <a href="https://github.com/ml6team/fondant">
@@ -10,9 +10,8 @@
 
 ## Introduction
 
-This repository contains RAG-related pipelines built with 
-[Fondant](https://github.com/ml6team/fondant), a hub and framework for easy and shareable data 
-processing.
+This repository contains data pipelines and ready-to-use notebooks for tuning RAG systems both manually and automatically using parameter search.
+To achieve this, it leverages [Fondant](https://github.com/ml6team/fondant), a free and open source framework for production-ready, easy and shareable data processing.
 
 ## Available notebooks
 
@@ -30,7 +29,16 @@ informed choices on which parameters to try.
 
 ### Auto-tuning of a RAG indexing pipeline
 
-> 🚧 Coming soon
+<p>
+    A <a href="./src/parameter_search.ipynb"><b>notebook</b></a> which allows you to automatically search for the 
+    optimal parameter settings using different methods
+</p>
+<br>
+<p align="center">
+    <a href="./src/parameter_search.ipynb">
+         <img src="./art/iteration.png" width="800px"/>
+    </a>
+</p>
 
 ## Getting started
 
