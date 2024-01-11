@@ -6,7 +6,7 @@ from fondant.pipeline import Pipeline, Resources
 def create_pipeline(
     *,
     weaviate_url: str,
-    base_path: str = "./data-dir",
+    base_path: str = "./data",
     n_rows_to_load: int = 1000,
     weaviate_class: str = "Pipeline1",
     weaviate_overwrite: bool = True,
