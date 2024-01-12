@@ -16,9 +16,9 @@ def create_pipeline(
     embed_model: str = "all-MiniLM-L6-v2",
     embed_api_key: dict = {},
     retrieval_top_k: int = 3,
-    evaluation_module: str = "langchain.llms",
-    evaluation_llm: str = "OpenAI",
-    evaluation_llm_kwargs: dict = {"model_name": "gpt-3.5-turbo"},
+    llm_module_name: str = "langchain.chat_models",
+    llm_class_name: str = "ChatOpenAI",
+    llm_kwargs: dict = {"model_name": "gpt-3.5-turbo"},
     evaluation_metrics: list = ["context_precision", "context_relevancy"],
     number_of_accelerators=None,
     accelerator_name=None,
@@ -72,9 +72,9 @@ def create_pipeline(
     retriever_eval = retrieve_chunks.apply(
         "evaluate_ragas",
         arguments={
-            "module": evaluation_module,
-            "llm_name": evaluation_llm,
-            "llm_kwargs": evaluation_llm_kwargs,
+            "llm_module_name": llm_module_name,
+            "llm_class_name": llm_class_name,
+            "llm_kwargs": llm_kwargs,
         },
         produces={metric: pa.float32() for metric in evaluation_metrics},
     )

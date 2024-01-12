@@ -9,10 +9,26 @@ from pathlib import Path
 import pandas as pd
 import pipeline_eval
 import pipeline_index
+import weaviate
 from fondant.pipeline.runner import DockerRunner
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+
+def check_weaviate_class_exists(
+    weaviate_client: weaviate.Client,
+    weaviate_class: str,
+) -> bool:
+    """Check if a class exists in Weaviate."""
+    classes = weaviate_client.schema.get()["classes"]
+    available_classes = [_class["class"] for _class in classes]
+    if weaviate_class not in available_classes:
+        logger.error(f"Class {weaviate_class} does not exist in Weaviate.")
+        return False
+
+    logger.info(f"Class {weaviate_class} exists in Weaviate.")
+    return True
 
 
 def get_host_ip():
@@ -299,10 +315,14 @@ class ParameterSearch:
     def create_pipelines(self, indexing_config, evaluation_config):
         # create indexing pipeline
 
+        chunk_args = {
+            "chunk_size": indexing_config["chunk_size"],
+            "chunk_overlap": indexing_config["chunk_overlap"],
+        }
         indexing_pipeline = pipeline_index.create_pipeline(
+            chunk_args=chunk_args,
             **self.shared_args,
             **self.index_args,
-            **indexing_config,
             **self.resource_args,
         )
 
