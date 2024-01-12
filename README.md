@@ -11,7 +11,8 @@
 ## Introduction
 
 This repository contains data pipelines and ready-to-use notebooks for tuning RAG systems both manually and automatically using parameter search.
-To achieve this, it leverages [Fondant](https://github.com/ml6team/fondant), a free and open source framework for production-ready, easy and shareable data processing.
+To achieve this, it leverages [Fondant](https://github.com/ml6team/fondant), a free and open source framework for production-ready, easy and shareable data processing. 
+Check out the Fondant [website](https://fondant.ai/) if you want to learn more and join our [Discord](https://discord.gg/HnTdWhydGp) if you want to stay up to date.
 
 ## Available notebooks
 
