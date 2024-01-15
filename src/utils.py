@@ -315,14 +315,15 @@ class ParameterSearch:
     def create_pipelines(self, indexing_config, evaluation_config):
         # create indexing pipeline
 
-        chunk_args = {
-            "chunk_size": indexing_config["chunk_size"],
-            "chunk_overlap": indexing_config["chunk_overlap"],
+        indexing_config["chunk_args"] = {
+            "chunk_size": indexing_config.pop("chunk_size"),
+            "chunk_overlap": indexing_config.pop("chunk_overlap"),
         }
+
         indexing_pipeline = pipeline_index.create_pipeline(
-            chunk_args=chunk_args,
             **self.shared_args,
             **self.index_args,
+            **indexing_config,
             **self.resource_args,
         )
 
