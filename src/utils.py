@@ -167,7 +167,7 @@ class ParameterSearch:
         # list of dicts to store all params & results
         self.results = []
 
-    def run(self):
+    def run(self, weaviate_client: weaviate.Client):
         run_count = 0
 
         while True:
@@ -187,6 +187,8 @@ class ParameterSearch:
 
             # run indexing pipeline
             self.run_indexing_pipeline(run_count, indexing_config, indexing_pipeline)
+
+            check_weaviate_class_exists(weaviate_client, indexing_config["weaviate_class"])
 
             # run evaluation pipeline
             self.run_evaluation_pipeline(
@@ -315,15 +317,17 @@ class ParameterSearch:
     def create_pipelines(self, indexing_config, evaluation_config):
         # create indexing pipeline
 
-        indexing_config["chunk_args"] = {
-            "chunk_size": indexing_config.pop("chunk_size"),
-            "chunk_overlap": indexing_config.pop("chunk_overlap"),
+        indexing_config_copy = indexing_config.copy()
+
+        indexing_config_copy["chunk_args"] = {
+            "chunk_size": indexing_config_copy.pop("chunk_size"),
+            "chunk_overlap": indexing_config_copy.pop("chunk_overlap"),
         }
 
         indexing_pipeline = pipeline_index.create_pipeline(
             **self.shared_args,
             **self.index_args,
-            **indexing_config,
+            **indexing_config_copy,
             **self.resource_args,
         )
 
