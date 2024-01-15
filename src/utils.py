@@ -188,7 +188,9 @@ class ParameterSearch:
             # run indexing pipeline
             self.run_indexing_pipeline(run_count, indexing_config, indexing_pipeline)
 
-            check_weaviate_class_exists(weaviate_client, indexing_config["weaviate_class"])
+            check_weaviate_class_exists(
+                weaviate_client, indexing_config["weaviate_class"]
+            )
 
             # run evaluation pipeline
             self.run_evaluation_pipeline(
