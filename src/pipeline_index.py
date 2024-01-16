@@ -13,8 +13,7 @@ def create_pipeline(
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
     embed_api_key: dict = {},
-    chunk_size: int = 512,
-    chunk_overlap: int = 32,
+    chunk_args: dict = {"chunk_size": 512, "chunk_overlap": 32},
     number_of_accelerators=None,
     accelerator_name=None,
 ):
@@ -40,8 +39,7 @@ def create_pipeline(
     chunks = text.apply(
         "chunk_text",
         arguments={
-            "chunk_size": chunk_size,
-            "chunk_overlap": chunk_overlap,
+            "chunk_args": chunk_args,
         },
     )
 
