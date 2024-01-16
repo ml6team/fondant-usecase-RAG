@@ -7,6 +7,10 @@
 </p>
 <p align="center">
 </p>
+<p align="center">
+</p>
+<p align="center"><b>
+Check out our <a href="https://medium.com/fondant-blog/lets-tune-rag-pipelines-with-fondant-902f7215e540">blogpost</a> about how to to fine-tune your RAG pipeline using Fondant!</b></p>
 
 ## Introduction
 
