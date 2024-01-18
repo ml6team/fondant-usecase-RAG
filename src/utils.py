@@ -188,9 +188,10 @@ class ParameterSearch:
 
             # run indexing pipeline
             logger.info(
-                f"Starting indexing pipeline of RUN {run_count}/{n_runs} with {indexing_config}")
+                f"Starting indexing pipeline of RUN {run_count}/{n_runs} with {indexing_config}",
+            )
             self.runner.run(indexing_pipeline)
-            
+
             check_weaviate_class_exists(
                 weaviate_client,
                 indexing_config["weaviate_class"],
@@ -198,9 +199,12 @@ class ParameterSearch:
 
             # run evaluation pipeline
             logger.info(
-                f"Starting evaluation pipeline of run #{run_count} / {n_runs} with {evaluation_config}")
-            self.runner.run(input=evaluation_pipeline, 
-                            extra_volumes=self.extra_volumes,
+                f"Starting evaluation pipeline of run #{run_count} / \
+                {n_runs} with {evaluation_config}",
+            )
+            self.runner.run(
+                input=evaluation_pipeline,
+                extra_volumes=self.extra_volumes,
             )
 
             # read metrics from pipeline output
@@ -256,7 +260,9 @@ class ParameterSearch:
                             keys_to_try.append(key)
                             values_to_try.append(option)
                 step += 1
-            variations_to_try = [{keys_to_try[i]: values_to_try[i]} for i in range(len(keys_to_try))]
+            variations_to_try = [
+                {keys_to_try[i]: values_to_try[i]} for i in range(len(keys_to_try))
+            ]
             n_runs = len(variations_to_try) + 1
 
             # if there are no variations to try, just schedule one run
