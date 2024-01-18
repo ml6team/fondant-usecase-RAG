@@ -187,23 +187,21 @@ class ParameterSearch:
             )
 
             # run indexing pipeline
+            logger.info(
+                f"Starting indexing pipeline of RUN {run_count}/{n_runs} with {indexing_config}")
             self.runner.run(indexing_pipeline)
             
             check_weaviate_class_exists(
                 weaviate_client,
                 indexing_config["weaviate_class"],
             )
-            
-            logger.info(
-                f"Starting indexing pipeline of RUN {run_count}/{n_runs} with {indexing_config}")
 
             # run evaluation pipeline
+            logger.info(
+                f"Starting evaluation pipeline of run #{run_count} / {n_runs} with {evaluation_config}")
             self.runner.run(input=evaluation_pipeline, 
                             extra_volumes=self.extra_volumes,
             )
-            
-            logger.info(
-                f"Starting evaluation pipeline of run #{run_count} / {n_runs} with {evaluation_config}")
 
             # read metrics from pipeline output
             metrics = {}
