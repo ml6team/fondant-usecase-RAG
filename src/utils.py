@@ -173,11 +173,12 @@ class ParameterSearch:
         while True:
             configs = self.create_configs(run_count)
 
+            # stop running when out of configs
             if configs is None:
                 break
 
             # create configs
-            indexing_config, evaluation_config = configs
+            indexing_config, evaluation_config, n_runs = configs
 
             # create pipeline objects
             indexing_pipeline, evaluation_pipeline = self.create_pipelines(
@@ -186,19 +187,23 @@ class ParameterSearch:
             )
 
             # run indexing pipeline
-            self.run_indexing_pipeline(run_count, indexing_config, indexing_pipeline)
-
+            self.runner.run(indexing_pipeline)
+            
             check_weaviate_class_exists(
                 weaviate_client,
                 indexing_config["weaviate_class"],
             )
+            
+            logger.info(
+                f"Starting indexing pipeline of RUN {run_count}/{n_runs} with {indexing_config}")
 
             # run evaluation pipeline
-            self.run_evaluation_pipeline(
-                run_count,
-                evaluation_config,
-                evaluation_pipeline,
+            self.runner.run(input=evaluation_pipeline, 
+                            extra_volumes=self.extra_volumes,
             )
+            
+            logger.info(
+                f"Starting evaluation pipeline of run #{run_count} / {n_runs} with {evaluation_config}")
 
             # read metrics from pipeline output
             metrics = {}
@@ -222,6 +227,7 @@ class ParameterSearch:
         if self.search_method == "grid_search":
             # all possible combinations of parameters
             all_combinations = list(cartesian_product(self.searchable_params))
+            n_runs = len(all_combinations)
 
             # when all combinations have been tried, stop searching
             if run_count > len(all_combinations) - 1:
@@ -252,9 +258,8 @@ class ParameterSearch:
                             keys_to_try.append(key)
                             values_to_try.append(option)
                 step += 1
-            variations_to_try = [
-                {keys_to_try[i]: values_to_try[i]} for i in range(len(keys_to_try))
-            ]
+            variations_to_try = [{keys_to_try[i]: values_to_try[i]} for i in range(len(keys_to_try))]
+            n_runs = len(variations_to_try) + 1
 
             # if there are no variations to try, just schedule one run
             if len(variations_to_try) == 0:
@@ -315,7 +320,7 @@ class ParameterSearch:
             "embed_model"
         ] = indexing_config["embed_model"][1]
 
-        return indexing_config, evaluation_config
+        return indexing_config, evaluation_config, n_runs
 
     def create_pipelines(self, indexing_config, evaluation_config):
         # create indexing pipeline
@@ -352,20 +357,3 @@ class ParameterSearch:
             logger.info({**self.shared_args, **self.eval_args, **evaluation_config})
 
         return indexing_pipeline, evaluation_pipeline
-
-    def run_indexing_pipeline(self, run_count, indexing_config, indexing_pipeline):
-        logger.info(
-            f"Starting indexing pipeline of run #{run_count} with {indexing_config}",
-        )
-        self.runner.run(indexing_pipeline)
-
-    def run_evaluation_pipeline(
-        self,
-        run_count,
-        evaluation_config,
-        evaluation_pipeline,
-    ):
-        logger.info(
-            f"Starting evaluation pipeline of run #{run_count} with {evaluation_config}",
-        )
-        self.runner.run(input=evaluation_pipeline, extra_volumes=self.extra_volumes)
