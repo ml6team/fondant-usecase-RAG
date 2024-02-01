@@ -22,7 +22,7 @@ Check out the Fondant [website](https://fondant.ai/) if you want to learn more a
 
 ### A simple RAG indexing pipeline
 
-A [**notebook**](./src/pipeline.ipynb) with a simple Fondant pipeline to index your data into a 
+A [**notebook**](./src/indexing.ipynb) with a simple Fondant pipeline to index your data into a 
 RAG system.
 
 ### Iterative tuning of a RAG indexing pipeline
@@ -84,4 +84,4 @@ fondant --help
 There are two options to run the pipeline:
 
 - [**Via python files and the Fondant CLI:**](https://fondant.ai/en/latest/pipeline/#running-a-pipeline) how you should run Fondant in production
-- [**Via a Jupyter notebook**](./src/pipeline.ipynb): ideal to learn about Fondant
+- [**Via a Jupyter notebook**](./src/indexing.ipynb): ideal to learn about Fondant
