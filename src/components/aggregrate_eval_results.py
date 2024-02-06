@@ -5,14 +5,16 @@ from fondant.pipeline import lightweight_component
 
 
 @lightweight_component(
+    consumes={
+    "context_precision": pa.float32(),
+    "context_relevancy": pa.float32(),
+    },
     produces={
         "metric": pa.string(),
         "score": pa.float32()
     }
 )
 class AggregateResults(DaskTransformComponent):
-    def __init__(self, consumes: dict, **kwargs):
-        self.consumes = consumes
 
     def transform(self, dataframe: dd.DataFrame) -> dd.DataFrame:
         metrics = list(self.consumes.keys())

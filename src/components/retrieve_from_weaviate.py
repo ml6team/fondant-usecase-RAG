@@ -56,9 +56,8 @@ class RetrieveFromWeaviateComponent(PandasTransformComponent):
         )
 
         result = query.do()
-        if "data" in result:
-            result_dict = result["data"]["Get"][self.class_name]
-            return [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
+        result_dict = result["data"]["Get"][self.class_name]
+        return [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
 
@@ -67,12 +66,8 @@ class RetrieveFromWeaviateComponent(PandasTransformComponent):
                 self.retrieve_chunks_from_embeddings,
             )
 
-        elif "prompt" in dataframe.columns:
-            dataframe["retrieved_chunks"] = dataframe["prompt"].apply(
-                self.retrieve_chunks_from_prompts,
-            )
         else:
-            msg = "Dataframe must contain either an 'embedding' column or a 'prompt' column."
+            msg = "Dataframe must contain an 'embedding' column"
             raise ValueError(
                 msg,
             )
