@@ -1,7 +1,8 @@
 """Fondant pipeline to index a RAG system."""
 import pyarrow as pa
 from fondant.pipeline import Pipeline, Resources
-
+from pathlib import Path
+from components.chunking_component import ChunkTextComponent
 
 def create_pipeline(
     *,
@@ -9,22 +10,24 @@ def create_pipeline(
     base_path: str = "./data",
     n_rows_to_load: int = 1000,
     weaviate_class: str = "Pipeline1",
-    weaviate_overwrite: bool = True,
     embed_model_provider: str = "huggingface",
     embed_model: str = "all-MiniLM-L6-v2",
-    embed_api_key: dict = {},
     chunk_args: dict = {"chunk_size": 512, "chunk_overlap": 32},
     number_of_accelerators=None,
     accelerator_name=None,
 ):
     """Create a Fondant pipeline based on the provided arguments."""
-    indexing_pipeline = Pipeline(
+
+
+    Path(base_path).mkdir(parents=True, exist_ok=True)
+
+    pipeline = Pipeline(
         name="indexing-pipeline",
         description="Pipeline to prepare and process data for building a RAG solution",
-        base_path=base_path,
-    )
+        base_path=base_path
+        )
 
-    text = indexing_pipeline.read(
+    text = pipeline.read(
         "load_from_hf_hub",
         arguments={
             # Add arguments
@@ -32,29 +35,29 @@ def create_pipeline(
             "n_rows_to_load": n_rows_to_load,
         },
         produces={
-            "text": pa.string(),
-        },
+            "text": pa.string()
+        }
     )
 
+
     chunks = text.apply(
-        "chunk_text",
-        arguments={
-            "chunk_args": chunk_args,
-        },
+        ChunkTextComponent,
+        arguments=chunk_args
     )
+
 
     embeddings = chunks.apply(
         "embed_text",
         arguments={
             "model_provider": embed_model_provider,
-            "model": embed_model,
-            "api_keys": embed_api_key,
+            "model": embed_model
         },
         resources=Resources(
             accelerator_number=number_of_accelerators,
             accelerator_name=accelerator_name,
         ),
         cluster_type="local" if number_of_accelerators is not None else "default",
+        cache=False
     )
 
     embeddings.write(
@@ -62,9 +65,11 @@ def create_pipeline(
         arguments={
             "weaviate_url": weaviate_url,
             "class_name": weaviate_class,
-            "overwrite": weaviate_overwrite,
         },
-        cache=False,
+        consumes={
+            "text": pa.string(),
+            "embedding": pa.list_(pa.float32()),   
+        }
     )
 
-    return indexing_pipeline
+    return pipeline
