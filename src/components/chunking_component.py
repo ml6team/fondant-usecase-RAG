@@ -1,20 +1,22 @@
-import typing as t 
+import typing as t
+
 import pandas as pd
 import pyarrow as pa
 from fondant.component import PandasTransformComponent
 from fondant.pipeline import lightweight_component
 
+
 @lightweight_component(
-    consumes={"text":pa.string()},
-    produces={"text":pa.string(), "original_document_id":pa.string()},
-    extra_requires=["langchain==0.0.329"]
+    consumes={"text": pa.string()},
+    produces={"text": pa.string(), "original_document_id": pa.string()},
+    extra_requires=["langchain==0.0.329"],
 )
 class ChunkTextComponent(PandasTransformComponent):
     """Component that chunks text into smaller segments.
     More information about the different chunking strategies can be here:
       - https://python.langchain.com/docs/modules/data_connection/document_transformers/
       - https://www.pinecone.io/learn/chunking-strategies/.
-    """  
+    """
 
     def __init__(
         self,
@@ -24,13 +26,14 @@ class ChunkTextComponent(PandasTransformComponent):
     ):
         """
         Args:
-            chunk_size: the chunk size 
-            chunk_overlap: the overlap between chunks
+            chunk_size: the chunk size
+            chunk_overlap: the overlap between chunks.
         """
         from langchain.text_splitter import RecursiveCharacterTextSplitter
+
         self.chunker = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap
+            chunk_overlap=chunk_overlap,
         )
 
     def chunk_text(self, row) -> t.List[t.Tuple]:
@@ -46,6 +49,7 @@ class ChunkTextComponent(PandasTransformComponent):
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         import itertools
+
         results = dataframe.apply(
             self.chunk_text,
             axis=1,

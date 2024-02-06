@@ -1,10 +1,10 @@
 """Fondant pipeline to evaluate a RAG pipeline."""
 
 import pyarrow as pa
-from fondant.pipeline import Pipeline, Resources
-from components.retrieve_from_weaviate import RetrieveFromWeaviateComponent
-from components.evaluate_ragas import RagasEvaluator
 from components.aggregrate_eval_results import AggregateResults
+from components.evaluate_ragas import RagasEvaluator
+from components.retrieve_from_weaviate import RetrieveFromWeaviateComponent
+from fondant.pipeline import Pipeline, Resources
 
 
 def create_pipeline(
@@ -61,12 +61,12 @@ def create_pipeline(
     )
 
     retrieve_chunks = embed_text_op.apply(
-    RetrieveFromWeaviateComponent,
-    arguments={
-        "weaviate_url": weaviate_url,
-        "class_name": weaviate_class,
-        "top_k": retrieval_top_k
-    },
+        RetrieveFromWeaviateComponent,
+        arguments={
+            "weaviate_url": weaviate_url,
+            "class_name": weaviate_class,
+            "top_k": retrieval_top_k,
+        },
     )
 
     retriever_eval = retrieve_chunks.apply(
@@ -74,16 +74,16 @@ def create_pipeline(
         arguments={
             "llm_module_name": llm_module_name,
             "llm_class_name": llm_class_name,
-            "llm_kwargs": llm_kwargs
-        }
+            "llm_kwargs": llm_kwargs,
+        },
     )
 
     retriever_eval.apply(
-        AggregateResults, 
+        AggregateResults,
         consumes={
             "context_precision": "context_precision",
-            "context_relevancy": "context_relevancy"
-        }
+            "context_relevancy": "context_relevancy",
+        },
     )
 
     return evaluation_pipeline

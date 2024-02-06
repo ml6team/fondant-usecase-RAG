@@ -1,13 +1,12 @@
-import typing as t
-import dask.dataframe as dd
 import pandas as pd
 import pyarrow as pa
 from fondant.component import PandasTransformComponent
 from fondant.pipeline import lightweight_component
 
+
 @lightweight_component(
     produces={"retrieved_chunks": pa.list_(pa.string())},
-    extra_requires=["weaviate-client==3.24.1"]
+    extra_requires=["weaviate-client==3.24.1"],
 )
 class RetrieveFromWeaviateComponent(PandasTransformComponent):
     def __init__(
@@ -60,7 +59,6 @@ class RetrieveFromWeaviateComponent(PandasTransformComponent):
         return [retrieved_chunk["passage"] for retrieved_chunk in result_dict]
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-
         if "embedding" in dataframe.columns:
             dataframe["retrieved_chunks"] = dataframe["embedding"].apply(
                 self.retrieve_chunks_from_embeddings,

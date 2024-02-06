@@ -1,21 +1,19 @@
-import typing as t
-import pyarrow as pa
 import pandas as pd
+import pyarrow as pa
 from fondant.component import PandasTransformComponent
 from fondant.pipeline import lightweight_component
 
 
-
 @lightweight_component(
     consumes={
-        "question": pa.string(), 
-        "retrieved_chunks": pa.list_(pa.string())
-        },
+        "question": pa.string(),
+        "retrieved_chunks": pa.list_(pa.string()),
+    },
     produces={
-        "context_precision": pa.float32(), 
-        "context_relevancy": pa.float32()
-        },
-    extra_requires=["ragas==0.0.21"]
+        "context_precision": pa.float32(),
+        "context_relevancy": pa.float32(),
+    },
+    extra_requires=["ragas==0.0.21"],
 )
 class RagasEvaluator(PandasTransformComponent):
     def __init__(
@@ -23,22 +21,23 @@ class RagasEvaluator(PandasTransformComponent):
         *,
         llm_module_name: str,
         llm_class_name: str,
-        llm_kwargs: dict
+        llm_kwargs: dict,
     ) -> None:
         """
         Args:
             llm_module_name: Module from which the LLM is imported. Defaults to
              langchain.chat_models
             llm_class_name: Name of the selected llm. Defaults to ChatOpenAI
-            llm_kwargs: Arguments of the selected llm
+            llm_kwargs: Arguments of the selected llm.
         """
         self.llm = self.extract_llm(
             llm_module_name=llm_module_name,
             llm_class_name=llm_class_name,
             llm_kwargs=llm_kwargs,
         )
-        
+
         from ragas.llms import LangchainLLM
+
         self.gpt_wrapper = LangchainLLM(llm=self.llm)
         self.metric_functions = self.extract_metric_functions(
             metrics=["context_precision", "context_relevancy"],
@@ -76,10 +75,12 @@ class RagasEvaluator(PandasTransformComponent):
         )
 
         from datasets import Dataset
+
         return Dataset.from_pandas(dataframe)
 
     def ragas_eval(self, dataset):
         from ragas import evaluate
+
         return evaluate(dataset=dataset, metrics=self.metric_functions)
 
     def transform(self, dataframe: pd.DataFrame) -> pd.DataFrame:

@@ -1,8 +1,10 @@
 """Fondant pipeline to index a RAG system."""
-import pyarrow as pa
-from fondant.pipeline import Pipeline, Resources
 from pathlib import Path
+
+import pyarrow as pa
 from components.chunking_component import ChunkTextComponent
+from fondant.pipeline import Pipeline, Resources
+
 
 def create_pipeline(
     *,
@@ -17,15 +19,13 @@ def create_pipeline(
     accelerator_name=None,
 ):
     """Create a Fondant pipeline based on the provided arguments."""
-
-
     Path(base_path).mkdir(parents=True, exist_ok=True)
 
     pipeline = Pipeline(
         name="indexing-pipeline",
         description="Pipeline to prepare and process data for building a RAG solution",
-        base_path=base_path
-        )
+        base_path=base_path,
+    )
 
     text = pipeline.read(
         "load_from_hf_hub",
@@ -35,29 +35,27 @@ def create_pipeline(
             "n_rows_to_load": n_rows_to_load,
         },
         produces={
-            "text": pa.string()
-        }
+            "text": pa.string(),
+        },
     )
-
 
     chunks = text.apply(
         ChunkTextComponent,
-        arguments=chunk_args
+        arguments=chunk_args,
     )
-
 
     embeddings = chunks.apply(
         "embed_text",
         arguments={
             "model_provider": embed_model_provider,
-            "model": embed_model
+            "model": embed_model,
         },
         resources=Resources(
             accelerator_number=number_of_accelerators,
             accelerator_name=accelerator_name,
         ),
         cluster_type="local" if number_of_accelerators is not None else "default",
-        cache=False
+        cache=False,
     )
 
     embeddings.write(
@@ -68,8 +66,8 @@ def create_pipeline(
         },
         consumes={
             "text": pa.string(),
-            "embedding": pa.list_(pa.float32()),   
-        }
+            "embedding": pa.list_(pa.float32()),
+        },
     )
 
     return pipeline
