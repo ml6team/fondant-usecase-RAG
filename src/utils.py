@@ -1,7 +1,7 @@
 import logging
-import os
 import socket
 from pathlib import Path
+
 import weaviate
 
 logger = logging.getLogger()
