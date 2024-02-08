@@ -28,22 +28,7 @@ RAG system.
 ### Iterative tuning of a RAG indexing pipeline
 
 A [**notebook**](./src/evaluation.ipynb) which iteratively runs a Fondant
-[indexing pipeline](./src/pipeline_index.py) and [evaluation pipeline](./src/pipeline_eval.py) with 
-different parameters for comparison. You can inspect the data between every step to make 
-informed choices on which parameters to try.
-
-### Auto-tuning of a RAG indexing pipeline
-
-<p>
-    A <a href="./src/parameter_search.ipynb"><b>notebook</b></a> which allows you to automatically search for the 
-    optimal parameter settings using different methods
-</p>
-<br>
-<p align="center">
-    <a href="./src/parameter_search.ipynb">
-         <img src="./art/iteration.png" width="800px"/>
-    </a>
-</p>
+pipeline to evaluate a RAG system using [RAGAS](https://github.com/explodinggradients/ragas/tree/main/src/ragas).
 
 ## Getting started
 
